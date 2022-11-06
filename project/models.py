@@ -50,7 +50,6 @@ class Comment(db.Model):
     posted = db.Column(db.DateTime, nullable=False)
     tweet_id = db.Column(db.Integer, db.ForeignKey('tweets.tweet_id', ondelete="CASCADE"), nullable=False)
     tweet = db.relationship('Tweet', back_populates='comments', passive_deletes=True)
-    likes = db.relationship('Like', back_populates='comment', passive_deletes=True)
 
     def __init__(self, text=None, user_id=None, posted=None, tweet_id=None):
         self.text = text
@@ -71,7 +70,7 @@ class User(db.Model):
     tweets = db.relationship('Tweet', back_populates='poster')
     role = db.Column(db.String, default='user')
     comments = db.relationship('Comment', back_populates='poster', passive_deletes=True)
-    likes = db.relationship('Like', back_populates='user', passive_deletes=True)
+    likes = db.relationship('Like', back_populates='liker', passive_deletes=True)
 
     def __init__(self, name=None, email=None, password=None, role=None):
         self.name = name
@@ -99,6 +98,7 @@ class Like(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     liker = db.relationship('User', back_populates='likes', passive_deletes=True)
     tweet_id = db.Column(db.Integer, db.ForeignKey('tweets.tweet_id', ondelete="CASCADE"), nullable=False)
+    tweet = db.relationship('Tweet', back_populates='likes', passive_deletes=True)
 
 class Follower(db.Model):
     __tablename__ = 'follower'

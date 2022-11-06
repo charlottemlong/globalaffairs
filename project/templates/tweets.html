@@ -27,31 +27,55 @@
                 </a>
             </div>
             <div class="media-body">
-                {% if tweet.poster.name == session.name %}
-                <h4 class="media-heading">{{ tweet.poster.name }}
-                    <small>{{ tweet.delta_time(tweet.posted) }} <a class="btn btn-default btn-xs"
-                            href="{{ url_for('tweets.delete_tweet', tweet_id=tweet.tweet_id )}}">Delete</a></small>
-                </h4>
+                <div>
 
+                    {% if tweet.poster.name == session.name %}
+                    <div class="media-heading">
+                        <h4>{{ tweet.poster.name }}
+                            <small>{{ tweet.delta_time(tweet.posted) }} <a class="btn btn-default btn-xs"
+                                    href="{{ url_for('tweets.delete_tweet', tweet_id=tweet.tweet_id )}}">Delete</a></small>
+
+
+                        </h4>
+                    </div>
+                </div>
                 {{ tweet.tweet }}
 
-                <small>{{tweet.likes}} likes</small>
+
                 {% else %}
-                <h4 class="media-heading">{{ tweet.poster.name }}
-                    <small>{{ tweet.delta_time(tweet.posted) }} <a class="btn btn-info btn-xs"
-                            href="{{ url_for('tweets.unfollow_user', user_id=tweet.poster.id )}}">Unfollow</a></small>
-                </h4>
+                <div class="media-heading">
+                    <h4 class="media-heading">{{ tweet.poster.name }}
+                        <small>{{ tweet.delta_time(tweet.posted) }} <a class="btn btn-info btn-xs"
+                                href="{{ url_for('tweets.unfollow_user', user_id=tweet.poster.id )}}">Unfollow</a></small>
+
+                    </h4>
+                </div>
 
                 {{ tweet.tweet }}
-                <br>
 
+                <br>
                 {% endif %}
 
+                <span id="likes-count-{{tweet.tweet_id}}">
+                    {{ tweet.likes|length }}</span>
+              
+                    {% if current_user_id in tweet.likes|map(attribute="user_id")|list %}
+
+                    <i class="fas fa-thumbs-up" id="like-button-{{tweet.tweet_id}}"
+                        onclick="like({{tweet.tweet_id}})"></i>
+
+                    {% else %}
+                    <i class="far fa-thumbs-up" id="like-button-{{tweet.tweet_id}}"
+                        onclick="like({{tweet.tweet_id}})"></i>
+
+                    {% endif %}
+
+
                 <br>
-                <p >
+                <p>
                     {% if tweet.comments|length > 0 %}
                     <a data-bs-toggle="collapse" href="#comments-{{tweet.tweet_id}}" role="button">
-                    <small>View {{tweet.comments|length}} Comments</small>
+                        <small>View {{tweet.comments|length}} Comments</small>
                     </a>
                     {% else %}
                     <small class="text-muted">No Comments</small>
@@ -69,9 +93,8 @@
                                 <div>
                                     <small class="text-muted"> {{comment.posted}}</small>
                                     {% if current_user_id == comment.user_id or current_user_id == tweet.user_id %}
-                                    
-                                    <a class="btn btn-default btn-xs"
-                                        href="/delete-comment/{{comment.id}}">Delete</a>
+
+                                    <a class="btn btn-default btn-xs" href="/delete-comment/{{comment.id}}">Delete</a>
                                     {% endif %}
                                 </div>
                             </div>

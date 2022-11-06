@@ -2,12 +2,12 @@
 import datetime
 from functools import wraps
 from flask import (flash, redirect, render_template,
-    request, session, url_for, Blueprint)
+    request, session, url_for, Blueprint, jsonify)
 from sqlalchemy.exc import IntegrityError
 
 from .forms import PostTweetForm
 from project import db
-from project.models import User, Tweet, Follower, Comment
+from project.models import User, Tweet, Follower, Comment, Like
 
 # config
 tweets_blueprint = Blueprint('tweets', __name__)
@@ -176,7 +176,22 @@ def delete_comment(comment_id):
         db.session.commit()
 
     return redirect(url_for('tweets.tweet'))
-    
+
+@tweets_blueprint.route("/like-tweet/<tweet_id>", methods=['POST'])
 @login_required
-def add_like(tweet_id):
-    pass
+def like(tweet_id):
+    our_tweet_id = tweet_id
+    tweet = Tweet.query.filter_by(tweet_id=our_tweet_id).first()
+    like = Like.query.filter_by(user_id=session['user_id'], tweet_id=our_tweet_id).first()
+    if not tweet:
+        return jsonify({'error': 'Tweet does not exist.'}, 400)
+    elif like:
+        db.session.delete(like)
+        db.session.commit()
+    else:
+        like = Like(user_id=session['user_id'], tweet_id=our_tweet_id, date_created=datetime.datetime.now())
+        db.session.add(like)
+        db.session.commit()
+
+    return jsonify({"likes": len(tweet.likes), "liked": session['user_id'] in map(lambda x: x.user_id, tweet.likes)})
+
