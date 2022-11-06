@@ -2,7 +2,6 @@ import datetime
 
 from project import db
 
-
 class Tweet(db.Model):
     __tablename__ = 'tweets'
 

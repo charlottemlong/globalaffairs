@@ -183,6 +183,7 @@ def like(tweet_id):
     our_tweet_id = tweet_id
     tweet = Tweet.query.filter_by(tweet_id=our_tweet_id).first()
     like = Like.query.filter_by(user_id=session['user_id'], tweet_id=our_tweet_id).first()
+
     if not tweet:
         return jsonify({'error': 'Tweet does not exist.'}, 400)
     elif like:
@@ -194,4 +195,3 @@ def like(tweet_id):
         db.session.commit()
 
     return jsonify({"likes": len(tweet.likes), "liked": session['user_id'] in map(lambda x: x.user_id, tweet.likes)})
-
