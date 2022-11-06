@@ -4,17 +4,17 @@
 <form action="{{ url_for('tweets.post_tweet') }}" method="post">
     {{ form.csrf_token }}
     <div class="input-group">
-    {{ form.tweet(placeholder="What's happening?", class="form-control") }}
-    {% if form.tweet.errors %}
-    <span class="error">
-        {% for error in form.tweet.errors %}
-        {{ error }}
-        {% endfor %}
-    </span>
-    {% endif %}
-    <span class="input-group-btn">
-        <input class="btn btn-default" type="submit" value="Submit">
-    </span>
+        {{ form.tweet(placeholder="What's happening?", class="form-control") }}
+        {% if form.tweet.errors %}
+        <span class="error">
+            {% for error in form.tweet.errors %}
+            {{ error }}
+            {% endfor %}
+        </span>
+        {% endif %}
+        <span class="input-group-btn">
+            <input class="btn btn-default" type="submit" value="Submit">
+        </span>
     </div>
 </form>
 <div class="row marketing">
@@ -29,13 +29,62 @@
             <div class="media-body">
                 {% if tweet.poster.name == session.name %}
                 <h4 class="media-heading">{{ tweet.poster.name }}
-                    <small>{{ tweet.delta_time(tweet.posted) }} <a class="btn btn-default btn-xs" href="{{ url_for('tweets.delete_tweet', tweet_id=tweet.tweet_id )}}">Delete</a></small></h4>
+                    <small>{{ tweet.delta_time(tweet.posted) }} <a class="btn btn-default btn-xs"
+                            href="{{ url_for('tweets.delete_tweet', tweet_id=tweet.tweet_id )}}">Delete</a></small>
+                </h4>
+
                 {{ tweet.tweet }}
+
+                <small>{{tweet.likes}} likes</small>
                 {% else %}
                 <h4 class="media-heading">{{ tweet.poster.name }}
-                    <small>{{ tweet.delta_time(tweet.posted) }} <a class="btn btn-info btn-xs" href="{{ url_for('tweets.unfollow_user', user_id=tweet.poster.id )}}">Unfollow</a></small></h4>
+                    <small>{{ tweet.delta_time(tweet.posted) }} <a class="btn btn-info btn-xs"
+                            href="{{ url_for('tweets.unfollow_user', user_id=tweet.poster.id )}}">Unfollow</a></small>
+                </h4>
+
                 {{ tweet.tweet }}
+                <br>
+
                 {% endif %}
+
+                <br>
+                <p >
+                    {% if tweet.comments|length > 0 %}
+                    <a data-bs-toggle="collapse" href="#comments-{{tweet.tweet_id}}" role="button">
+                    <small>View {{tweet.comments|length}} Comments</small>
+                    </a>
+                    {% else %}
+                    <small class="text-muted">No Comments</small>
+                    {% endif %}
+                </p>
+                <div class="collapse" id="comments-{{tweet.tweet_id}}">
+                    <div class="card">
+                        <div class="card-body" id="comments-expanded-{{tweet.id}}">
+                            {% for comment in tweet.comments %}
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="/posts/{{comment.poster.name}}">{{comment.poster.name}}</a>:
+                                    {{comment.text}}
+                                </div>
+                                <div>
+                                    <small class="text-muted"> {{comment.posted}}</small>
+                                    {% if current_user_id == comment.user_id or current_user_id == tweet.user_id %}
+                                    
+                                    <a class="btn btn-default btn-xs"
+                                        href="/delete-comment/{{comment.id}}">Delete</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- reply form! -->
+                <form action="/create-comment/{{tweet.tweet_id}}" method="POST" class="input-group mb-3">
+                    <input type="text" id="text" name="text" class="form-control" placeholder="Comment something!">
+                    <button type="submit" class="btn btn-primary">Comment</button>
+                </form>
             </div>
         </div>
         {% endfor %}

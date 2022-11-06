@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .forms import PostTweetForm
 from project import db
-from project.models import User, Tweet, Follower
+from project.models import User, Tweet, Follower, Comment
 
 # config
 tweets_blueprint = Blueprint('tweets', __name__)
@@ -45,6 +45,7 @@ def tweet():
         'tweets.html',
         form=PostTweetForm(),
         all_tweets=filtered_tweets(session['user_id']),
+        current_user_id = session['user_id']
     )
 
 @tweets_blueprint.route('/tweets/post/', methods=['GET', 'POST'])
@@ -68,6 +69,7 @@ def post_tweet():
         form=form,
         error=error,
         all_tweets=filtered_tweets(session['user_id']),
+        current_user_id = session['user_id']
     )
 
 @tweets_blueprint.route('/tweets/delete/<int:tweet_id>/')
@@ -137,3 +139,44 @@ def unfollow_user(user_id):
     except AttributeError:
         flash('That user does not exist.')
         return redirect(url_for('tweets.tweet'))
+
+@tweets_blueprint.route('/create-comment/<tweet_id>', methods=['POST'])
+@login_required
+def create_comment(tweet_id):
+    our_tweet_id = tweet_id
+    text = request.form.get('text')
+
+    if not text:
+        flash('Comment cannot be empty', category='error')
+    else:
+        tweet = Tweet.query.filter_by(tweet_id=our_tweet_id)
+        if tweet:
+            comment = Comment(text,
+                            session['user_id'],
+                            datetime.datetime.now(),
+                            our_tweet_id)
+            db.session.add(comment)
+            db.session.commit()
+        else:
+            flash("Tweet does not exist", category='error')
+
+    return redirect(url_for('tweets.tweet'))
+
+@tweets_blueprint.route("/delete-comment/<comment_id>")
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.filter_by(id=comment_id).first()
+
+    if not comment:
+        flash('Comment does not exist.', category='error')
+    elif session['user_id'] != comment.user_id and session['user_id'] != comment.tweet.user_id:
+        flash('You do not have permission to delete this comment.', category='error')
+    else:
+        db.session.delete(comment)
+        db.session.commit()
+
+    return redirect(url_for('tweets.tweet'))
+    
+@login_required
+def add_like(tweet_id):
+    pass

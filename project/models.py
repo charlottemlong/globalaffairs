@@ -7,9 +7,12 @@ class Tweet(db.Model):
     __tablename__ = 'tweets'
 
     tweet_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     tweet = db.Column(db.String, nullable=False)
     posted = db.Column(db.DateTime, nullable=False)
+    poster = db.relationship("User", back_populates="tweets", passive_deletes=True)
+    comments = db.relationship('Comment', back_populates='tweet', passive_deletes=True)
+    likes = db.relationship('Like', back_populates='tweet', passive_deletes=True)
 
     def __init__(self, tweet, posted, user_id):
         self.tweet = tweet
@@ -37,6 +40,26 @@ class Tweet(db.Model):
             return 'few seconds ago'
 
 
+class Comment(db.Model):
+    __tablename__ = 'comments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    poster = db.relationship('User', back_populates='comments', passive_deletes=True)
+    text = db.Column(db.String, nullable=False)
+    posted = db.Column(db.DateTime, nullable=False)
+    tweet_id = db.Column(db.Integer, db.ForeignKey('tweets.tweet_id', ondelete="CASCADE"), nullable=False)
+    tweet = db.relationship('Tweet', back_populates='comments', passive_deletes=True)
+    likes = db.relationship('Like', back_populates='comment', passive_deletes=True)
+
+    def __init__(self, text=None, user_id=None, posted=None, tweet_id=None):
+        self.text = text
+        self.user_id = user_id
+        self.posted = posted
+        self.tweet_id = tweet_id
+
+    def __repr__(self):
+        pass
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -45,8 +68,10 @@ class User(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
-    tweets = db.relationship('Tweet', backref='poster')
+    tweets = db.relationship('Tweet', back_populates='poster')
     role = db.Column(db.String, default='user')
+    comments = db.relationship('Comment', back_populates='poster', passive_deletes=True)
+    likes = db.relationship('Like', back_populates='user', passive_deletes=True)
 
     def __init__(self, name=None, email=None, password=None, role=None):
         self.name = name
@@ -66,6 +91,14 @@ class User(db.Model):
         else:
             return False
 
+class Like(db.Model):
+    __tablename__ = 'likes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date_created = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    liker = db.relationship('User', back_populates='likes', passive_deletes=True)
+    tweet_id = db.Column(db.Integer, db.ForeignKey('tweets.tweet_id', ondelete="CASCADE"), nullable=False)
 
 class Follower(db.Model):
     __tablename__ = 'follower'
