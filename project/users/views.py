@@ -67,6 +67,7 @@ def register():
                 form.name.data,
                 form.email.data,
                 bcrypt.generate_password_hash(form.password.data),
+                form.jury.data
             )
             try:
                 db.session.add(new_user)

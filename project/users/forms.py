@@ -1,5 +1,5 @@
 from flask_wtf import Form
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 
 class RegisterForm(Form):
@@ -18,6 +18,10 @@ class RegisterForm(Form):
     confirm = PasswordField(
         'Repeat Password',
         validators=[DataRequired(), EqualTo('password')]
+    )
+    jury = BooleanField(
+        'I would like to sign up for jury duty.',
+        validators=[DataRequired()]
     )
 
 

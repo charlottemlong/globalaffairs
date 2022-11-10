@@ -4,7 +4,7 @@
 <form action="/register/" method="post">
     {{ form.csrf_token }}
     <p>
-        {{ form.name(placeholder="name") }}
+        {{ form.name(placeholder="Username") }}
         {% if form.name.errors %}
         <span class="error">
         {% for error in form.name.errors %}
@@ -43,6 +43,17 @@
         </span>
         {% endif %}
     </p>
+    <p>
+        {{ form.jury }} I would like to sign up for jury duty.
+        {% if form.jury.errors %}
+        <span class="error">
+            {% for error in form.jury.errors %}
+                {{ error }}
+            {% endfor %}
+        </span>
+        {% endif %}
+    </p>
+    <br>
 <button class="btn btn-sm btn-success" type="submit">Register</button>
 </form>
 <br>
