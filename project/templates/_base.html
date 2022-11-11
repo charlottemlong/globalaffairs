@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>beep - CSxGlobal's Twitter</title>
+  <title>beep!</title>
 
   <!-- Bootstrap core CSS -->
   <link href="{{ url_for('static', filename='css/bootstrap.min.css' )}}" rel="stylesheet">
@@ -35,11 +35,11 @@
   <div class="container">
     <div class="header clearfix">
       <nav>
-        <ul class="nav nav-pills pull-right">
+        <ul class="nav nav-pills pull-right" style = "float: right;">
           {% if session.logged_in %}
-          <li><a href="/">Home</a></li>
-          <li><a href="/tweets/">Tweets</a></li>
-          <li><a href="{{ url_for('users.all_users') }}"">{{ session.name }}</a></li>
+          <li><a href="/">Home</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
+          <li><a href="/tweets/">Tweets</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
+          <li><a href="{{ url_for('users.all_users') }}"">{{ session.name }}</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
           {% endif %}
           {% if not session.logged_in %}
           {% block signin_form %}{% endblock signin_form %}
@@ -48,7 +48,7 @@
           {% endif %}
         </ul>
       </nav>
-      <h3 class="text-muted"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> beep!</h3>
+      <h3><img src="../static/img/Beep_Logo.png" alt="Beep Logo" style="width: 4%; height: auto;"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> BEEP<span class = "exclamation">!</span></h3>
     </div>
     {% for message in get_flashed_messages() %}
     <div class="alert alert-success">{{ message }}</div>
@@ -61,7 +61,7 @@
     {% block content %}
     {% endblock content %}
     <footer class="footer">
-      <p>Made with <span class="glyphicon glyphicon-heart" style="color:#c7254e" aria-hidden="true"></span></p>
+      <p><a href="/about">About</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/">Home</a></p>
     </footer>
 
   </div> <!-- /container -->

@@ -84,3 +84,8 @@ def register():
 def all_users():
     users = db.session.query(User).all()
     return render_template('users.html', users=users)
+
+@users_blueprint.route('/about', methods=['GET'])
+def about():
+    error = None
+    return render_template('about.html', error=error)

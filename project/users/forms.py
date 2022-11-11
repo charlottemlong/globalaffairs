@@ -21,7 +21,6 @@ class RegisterForm(Form):
     )
     jury = BooleanField(
         'I would like to sign up for jury duty.',
-        validators=[DataRequired()]
     )
 
 

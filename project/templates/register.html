@@ -1,10 +1,12 @@
 {% extends '_base.html' %}
 
 {% block content %}
-<form action="/register/" method="post">
+<h4>sign up today and become a part of the community<span class = "exclamation">!</span></h4>
+<br>
+<form action="/register/" method="post" style = "margin: auto;">
     {{ form.csrf_token }}
     <p>
-        {{ form.name(placeholder="Username") }}
+        {{ form.name(placeholder="username") }}
         {% if form.name.errors %}
         <span class="error">
         {% for error in form.name.errors %}
@@ -53,11 +55,10 @@
         </span>
         {% endif %}
     </p>
-    <br>
-<button class="btn btn-sm btn-success" type="submit">Register</button>
+<button class="btn btn-sm btn-success" type="submit" style="background-color: #8b11c6;">Register</button>
 </form>
 <br>
 <p>
-    <em>Already registered?</em>Click <a href="/">here</a> to login.
+    <em>Already registered? </em>Click <a href="/">here</a> to login.
 </p>
 {% endblock %}

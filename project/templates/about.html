@@ -1,0 +1,43 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class="row marketing">
+    <div class="col-lg-6">
+      <h4>Stack</h4>
+      <h5>Backend</h5>
+      <ul>
+          <li><a href="https://docs.python.org/3/">Python 3</a></li>
+          <li>build using <a href="http://flask.pocoo.org">Flask</a> framework</li>
+          <li>uses <a href="https://www.postgresql.org/">Postgres</a> as database</li>
+      </ul>
+      <h5>Frontend</h5>
+      <ul>
+          <li>uses <a href="https://getbootstrap.com">Bootstrap 3</a></li>
+      </ul>
+    </div>
+
+    <div class="col-lg-6">
+        <h4>About</h4>
+        <p>This is an attempt to make a democratic platform. Features include: </p>
+        <ul>
+            <li>An upvote/downvote system incorporated into policy 
+                changelogs after major version updates, such that 
+                users can express their views on policy changes. 
+                Platforms can then use this data to inform 
+                future iterations of the policy.
+            </li>
+            <li>Unskippable surveys to measure user views on select 
+                controversial policy issues. 
+                Results from these 
+                surveys can guide or determine content policy.
+            </li>
+            <li>Mandatory “jury duty” for select users to deliberate 
+                on controversial policy issues. 
+                The jury duty system 
+                    can be implemented through the messaging system of the 
+                    application.
+            </li>
+        </ul>
+    </div>
+  </div>
+{% endblock %}
