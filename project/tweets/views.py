@@ -87,7 +87,7 @@ def delete_tweet(tweet_id):
             flash('You can only delete tasks that belong to you.')
             return redirect(url_for('tweets.tweet'))
     else:
-        flash('That tweet does not exists. Saw what you did there, Hacker!')
+        flash('That tweet does not exist. Saw what you did there, Hacker!')
         return redirect(url_for('tweets.tweet'))
 
 @tweets_blueprint.route('/tweets/follow/<int:user_id>/')

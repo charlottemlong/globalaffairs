@@ -1,12 +1,13 @@
 # imports
+import datetime
 from functools import wraps
 from flask import (flash, redirect, render_template,
     request, session, url_for, Blueprint)
 from sqlalchemy.exc import IntegrityError
 
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, JuryForm, PostJuryForm
 from project import db, bcrypt
-from project.models import User, Follower
+from project.models import User, Follower, Issue, Group, Discussion_Comment
 
 # config
 users_blueprint = Blueprint('users', __name__)
@@ -20,6 +21,16 @@ def login_required(test):
             return test(*args, **kwargs)
         else:
             flash('You need to login first')
+            return (redirect(url_for('users.login')))
+    return wrap
+
+def admin_required(test):
+    @wraps(test)
+    def wrap(*args, **kwargs):
+        if 'admin' == session.get('role'):
+            return test(*args, **kwargs)
+        else:
+            flash('You need to be an administrator to access this page.')
             return (redirect(url_for('users.login')))
     return wrap
 
@@ -49,6 +60,7 @@ def login():
                     session['user_id'] = user.id
                     session['name'] = user.name
                     session['role'] = user.role
+                    session['jury'] = user.jury
                     flash('Welcome')
                     return redirect(url_for('tweets.tweet'))
             else:
@@ -71,6 +83,10 @@ def register():
             )
             try:
                 db.session.add(new_user)
+                db.session.flush()
+                if form.jury.data == 1:
+                    add_group = Group(new_user.id, None)
+                    db.session.add(add_group)
                 db.session.commit()
                 flash('Thanks for registering. Plese login.')
                 return redirect(url_for('users.login'))
@@ -89,3 +105,85 @@ def all_users():
 def about():
     error = None
     return render_template('about.html', error=error)
+
+def make_group(issue_id):
+    # Creates a group of users for jury duty task
+    group_size = 2
+    current_size = 0
+    while current_size < group_size:
+        member = Group.query.filter_by(issue_id=None).first()
+        member.issue_id = issue_id
+        current_size += 1
+
+@users_blueprint.route('/admin', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin():
+    error = None
+    form = JuryForm(request.form)
+    issues = db.session.query(Issue).all()
+    if request.method == 'POST':
+        if form.validate():
+            new_issue = Issue(
+                form.title.data,
+                form.prompts.data,
+                form.question.data,
+                form.vote.data
+            )
+            try:
+                db.session.add(new_issue)
+                db.session.flush()
+                make_group(new_issue.id)
+                db.session.commit()
+                flash('You successfully created a new issue')
+                return redirect(url_for('users.admin'))
+            except IntegrityError:
+                error = 'Make sure all fields are filled in'
+                return render_template('admin.html', form=form, error=error)
+    return render_template('admin.html', form=form, error=error, issues=issues)
+
+def filtered_comments(user_id):
+
+    group = Group.query.filter_by(user_id=user_id).first()
+    member_ids = db.session.query(Group.user_id).filter_by(issue_id=group.issue_id)
+    user_comments = db.session.query(Discussion_Comment).filter_by(user_id=user_id)
+    if member_ids.all():
+        member_comments = db.session.query(Discussion_Comment).filter(Discussion_Comment.user_id.in_(member_ids))
+        result = user_comments.union(member_comments)
+        return result.order_by(Discussion_Comment.posted.desc())
+    else:
+        return user_comments.order_by(Discussion_Comment.posted.desc())
+
+@users_blueprint.route('/jury', methods=['GET'])
+@login_required
+def jury():
+    return render_template(
+        'jury.html',
+        form=PostJuryForm(),
+        all_comments=filtered_comments(session['user_id']),
+        current_user_id = session['user_id']
+    )
+
+@users_blueprint.route('/jury/post', methods=['GET', 'POST'])
+@login_required
+def post_discussion():
+    error = None
+    form = PostJuryForm()
+    if request.method == 'POST':
+        if form.validate():
+            new_discuss_comment = Discussion_Comment(
+                form.comment.data,
+                datetime.datetime.now(),
+                session['user_id']
+            )
+            db.session.add(new_discuss_comment)
+            db.session.commit()
+            flash('Discussion comment has been posted.')
+            return redirect(url_for('users.jury'))
+    return render_template(
+        'jury.html',
+        form=form,
+        error=error,
+        all_comments=filtered_comments(session['user_id']),
+        current_user_id = session['user_id']
+    )

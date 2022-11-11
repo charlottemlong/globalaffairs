@@ -71,6 +71,7 @@ class User(db.Model):
     role = db.Column(db.String, default='user')
     comments = db.relationship('Comment', back_populates='poster', passive_deletes=True)
     likes = db.relationship('Like', back_populates='liker', passive_deletes=True)
+    discussion_comments = db.relationship('Discussion_Comment', back_populates='poster')
 
     def __init__(self, name=None, email=None, password=None, jury=None, role=None):
         self.name = name
@@ -117,3 +118,68 @@ class Follower(db.Model):
 
     def __repr__(self):
         return '<User {0} follows {1}>'.format(self.who_id, self.whom_id)
+
+class Group(db.Model):
+    __tablename__ = 'groups'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
+    issue_id = db.Column(db.Integer, db.ForeignKey('issues.id', ondelete="CASCADE"))
+
+    def __init__(self, user_id=None, issue_id=None):
+        self.user_id = user_id
+        self.issue_id = issue_id
+
+    def __repr__(self):
+        return str(self.issue_id)
+
+class Issue(db.Model):
+    __tablename__ = 'issues'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String, unique=True, nullable=False)
+    prompt = db.Column(db.String, unique=True, nullable=False)
+    question = db.Column(db.String, nullable=False)
+    type = db.Column(db.String, nullable=False, default=False)
+    result = db.Column(db.String, default='In Progress')
+
+    def __init__(self, title=None, prompt=None, question=None, type=None):
+        self.title = title
+        self.prompt = prompt
+        self.question = question
+        self.type = type
+
+    def __repr__(self):
+        return '<Issue {0} entitled {1}>'.format(self.id, self.title)
+
+class Discussion_Comment(db.Model):
+    __tablename__ = 'discussion_comments'
+
+    comment_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    comment = db.Column(db.String, nullable=False)
+    posted = db.Column(db.DateTime, nullable=False)
+    poster = db.relationship("User", back_populates="discussion_comments", passive_deletes=True)
+
+    def __init__(self, comment, posted, user_id):
+        self.comment = comment
+        self.posted = posted
+        self.user_id = user_id
+
+    def __repr__(self):
+        return '<Id {0} - {1}>'.format(self.tweet_id, self.tweet)
+
+    @classmethod
+    def delta_time(cls, comment_posted):
+        now = datetime.datetime.now()
+        td = now - comment_posted
+        days = td.days
+        hours = td.seconds//3600
+        minutes = (td.seconds//60)%60
+        if days > 0:
+            return comment_posted.strftime("%d %B, %Y")
+        elif hours > 0:
+            return str(hours) + 'h'
+        elif minutes > 0:
+            return str(minutes) + 'm'
+        else:
+            return 'few seconds ago'

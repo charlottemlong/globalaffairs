@@ -39,7 +39,13 @@
           {% if session.logged_in %}
           <li><a href="/">Home</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
           <li><a href="/tweets/">Boops</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
+          {% if session.jury == '1' %}
+          <li><a href="/jury">Jury Duty</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
+          {% endif %}
           <li><a href="{{ url_for('users.all_users') }}"">{{ session.name }}</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
+          {% if session.role == 'admin' %}
+          <li><a href="/admin">Administrator Tools</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
+          {% endif %}
           {% endif %}
           {% if not session.logged_in %}
           {% block signin_form %}{% endblock signin_form %}

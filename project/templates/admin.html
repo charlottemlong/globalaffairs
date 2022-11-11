@@ -1,0 +1,74 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<h4>Administrator Tools<span class = "exclamation">!</span></h4>
+<br>
+<h5>Create Issue for Jury</h5>
+<br>
+<form action="/admin" method="post" style = "margin: auto;">
+    {{ form.csrf_token }}
+    <p>
+        {{ form.title(placeholder="Title") }}
+        {% if form.title.errors %}
+        <span class="error">
+        {% for error in form.title.errors %}
+            {{ error }}
+        {% endfor %}
+        </span>
+        {% endif %}
+    </p>
+    <p>
+        {{ form.prompts(placeholder="Prompts") }}
+        {% if form.prompts.errors %}
+        <span class="error">
+            {% for error in form.prompts.errors %}
+                {{ error }}
+            {% endfor %}
+        </span>
+        {% endif %}
+    </p>
+    <p>
+        {{ form.question(placeholder="Question") }}
+        {% if form.question.errors %}
+        <span class="error">
+            {% for error in form.question.errors %}
+                {{ error }}
+            {% endfor %}
+        </span>
+        {% endif %}
+    </p>
+    <p>
+        Select vote type:
+        {{ form.vote }}
+        {% if form.vote.errors %}
+        <span class="error">
+            {% for error in form.vote.errors %}
+                {{ error }}
+            {% endfor %}
+        </span>
+        {% endif %}
+    </p>
+<button class="btn btn-sm btn-success" type="submit" style="background-color: #8b11c6;">Create Issue</button>
+</form>
+<br>
+<br>
+<h5>All Jury Issues</h5>
+<div class="row marketing">
+    {% for issue in issues %}
+    <div class="media">
+        <div class="media-left">
+            <a href="#">
+                <img src="" alt="" />
+            </a>
+        </div>
+        <div class="media-body">
+            <h4 class="media-heading">{{issue.id}} {{ issue.title }} </h4>
+            Question: {{issue.question}} 
+            <br>
+            Result: {{issue.result}}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<br>
+{% endblock %}

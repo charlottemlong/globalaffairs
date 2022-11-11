@@ -1,5 +1,5 @@
-from flask_wtf import Form
-from wtforms import StringField, PasswordField, BooleanField
+from flask_wtf import Form, FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, RadioField
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 
 class RegisterForm(Form):
@@ -20,7 +20,7 @@ class RegisterForm(Form):
         validators=[DataRequired(), EqualTo('password')]
     )
     jury = BooleanField(
-        'I would like to sign up for jury duty.',
+        'Jury Duty',
     )
 
 
@@ -33,4 +33,28 @@ class LoginForm(Form):
     password = PasswordField(
         'Password',
         validators=[DataRequired()]
+    )
+
+class JuryForm(Form):
+    title = StringField(
+        'Title',
+        validators=[DataRequired()]
+    )
+    prompts = StringField(
+        'Prompts',
+        validators=[DataRequired()]
+    )
+    question = StringField(
+        'Question',
+        validators=[DataRequired()]
+    )
+    vote = RadioField(
+        'Vote Type',
+        choices=[(0,'Scale Rating'),(1,'Plain Vote'), (2, 'Feedback Only')]
+    )
+
+class PostJuryForm(FlaskForm):
+    comment = StringField(
+        'Comment',
+        validators=[DataRequired(), Length(min=6, max=140)]
     )
