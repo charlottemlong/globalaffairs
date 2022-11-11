@@ -46,7 +46,7 @@
                 <div class="media-heading">
                     <h4 class="media-heading">{{ tweet.poster.name }}
                         <small>{{ tweet.delta_time(tweet.posted) }} <a class="btn btn-info btn-xs"
-                                href="{{ url_for('tweets.unfollow_user', user_id=tweet.poster.id )}}">Unfollow</a></small>
+                                href="{{ url_for('tweets.unfollow_user', user_id=tweet.poster.id )}}" id="unfollow">Unfollow</a></small>
 
                     </h4>
                 </div>
@@ -106,7 +106,7 @@
                 <!-- reply form! -->
                 <form action="/create-comment/{{tweet.tweet_id}}" method="POST" class="input-group mb-3">
                     <input type="text" id="text" name="text" class="form-control" placeholder="Comment something!">
-                    <button type="submit" class="btn btn-primary">Comment</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #8b11c6; border: 0px;">Comment</button>
                 </form>
             </div>
         </div>

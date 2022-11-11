@@ -38,7 +38,7 @@
         <ul class="nav nav-pills pull-right" style = "float: right;">
           {% if session.logged_in %}
           <li><a href="/">Home</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
-          <li><a href="/tweets/">Tweets</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
+          <li><a href="/tweets/">Boops</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
           <li><a href="{{ url_for('users.all_users') }}"">{{ session.name }}</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
           {% endif %}
           {% if not session.logged_in %}

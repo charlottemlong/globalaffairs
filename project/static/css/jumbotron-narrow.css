@@ -102,7 +102,7 @@ img {
 }
 
 a:visited {
-  color: #ac9789;
+  color: #93a563;
   background-color: transparent;
   text-decoration: none;
 }
@@ -136,4 +136,13 @@ h4 {
   color: black;
   font-family: 'Courier New';
   font-size: 20;
+}
+
+#unfollow{
+  border:0px;
+}
+
+#unfollow:hover{
+  background-color: #8b11c6;
+  color: white;
 }
