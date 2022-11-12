@@ -27,11 +27,11 @@
 {% endblock signin_form %}
 
 {% block content %}
-      <div class="jumbotron">
-        <img src="static/img/Beep_Logo.png" alt="Beep Logo"><h1 style="font-family: 'Courier New', Courier, monospace;">BEEP<span class = "exclamation">!</span></h1>
-        <p class="lead">the world's first democratic platform</p>
-        {% if not session.logged_in %}
-        <p><a class="btn btn-lg btn-success" href="/register/" role="button" style="color:white;">Sign up today</a></p>
-        {% endif %}
-      </div>
+    <div class="jumbotron">
+    <img src="static/img/Beep_Logo.png" alt="Beep Logo"><h1 style="font-family: 'Courier New', Courier, monospace;">BEEP<span class = "exclamation">!</span></h1>
+    <p class="lead">the world's first democratic platform</p>
+    {% if not session.logged_in %}
+    <p><a class="btn btn-lg btn-success" href="/register/" role="button" style="color:white;">Sign up today</a></p>
+    {% endif %}
+    </div>
 {% endblock content %}

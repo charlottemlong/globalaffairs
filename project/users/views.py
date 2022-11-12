@@ -95,11 +95,19 @@ def register():
                 return render_template('register.html', form=form, error=error)
     return render_template('register.html', form=form, error=error)
 
-@users_blueprint.route('/users/')
+@users_blueprint.route('/users/all_users')
 @login_required
 def all_users():
     users = db.session.query(User).all()
     return render_template('users.html', users=users)
+
+@users_blueprint.route('/users/followers')
+@login_required
+def followers():
+    users = db.session.query(User).all()
+    return render_template('followers.html', users=users)
+
+
 
 @users_blueprint.route('/about', methods=['GET'])
 def about():
