@@ -42,7 +42,8 @@
           {% if session.jury == '1' %}
           <li><a href="/jury">Jury Duty</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
           {% endif %}
-          <li><a href="{{ url_for('users.all_users') }}"">{{ session.name }}</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
+          <li><a href="{{ url_for('users.all_users') }}">Users</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
+          <li><a href="{{ url_for('users.followers') }}">{{ session.name }}</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
           {% if session.role == 'admin' %}
           <li><a href="/admin">Administrator Tools</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
           {% endif %}

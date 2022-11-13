@@ -1,0 +1,41 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<div class="row marketing">
+    <h1>Following</h1>
+    {% for user in users %}
+    {% if user.is_following(session.user_id, user.id): %}
+
+    <div class="media">
+        <div class="media-left">
+            <a href="#">
+                <img src="" alt="" />
+            </a>
+        </div>
+        <div class="media-body">
+            <h4 class="media-heading">{{ user.name }}
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="row marketing">
+    <h1>Followers</h1>
+    {% for user in users %}
+    {% if user.is_following(user.id, session.user_id): %}
+
+    <div class="media">
+        <div class="media-left">
+            <a href="#">
+                <img src="" alt="" />
+            </a>
+        </div>
+        <div class="media-body">
+            <h4 class="media-heading">{{ user.name }}
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock content %}
