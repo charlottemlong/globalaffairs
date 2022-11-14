@@ -2,7 +2,7 @@
 import datetime
 from functools import wraps
 from flask import (flash, redirect, render_template,
-    request, session, url_for, Blueprint)
+                   request, session, url_for, Blueprint)
 from sqlalchemy.exc import IntegrityError
 
 from .forms import RegisterForm, LoginForm, JuryForm, PostJuryForm
@@ -14,6 +14,7 @@ users_blueprint = Blueprint('users', __name__)
 
 # helper functions
 
+
 def login_required(test):
     @wraps(test)
     def wrap(*args, **kwargs):
@@ -23,6 +24,7 @@ def login_required(test):
             flash('You need to login first')
             return (redirect(url_for('users.login')))
     return wrap
+
 
 def admin_required(test):
     @wraps(test)
@@ -47,6 +49,7 @@ def logout():
     flash('You have been logged out')
     return redirect(url_for('users.login'))
 
+
 @users_blueprint.route('/', methods=['GET', 'POST'])
 def login():
     error = None
@@ -55,17 +58,18 @@ def login():
         if form.validate():
             user = User.query.filter_by(name=request.form['name']).first()
             if user is not None and bcrypt.check_password_hash(user.password,
-                request.form['password']):
-                    session['logged_in'] = True
-                    session['user_id'] = user.id
-                    session['name'] = user.name
-                    session['role'] = user.role
-                    session['jury'] = user.jury
-                    flash('Welcome')
-                    return redirect(url_for('tweets.tweet'))
+                                                               request.form['password']):
+                session['logged_in'] = True
+                session['user_id'] = user.id
+                session['name'] = user.name
+                session['role'] = user.role
+                session['jury'] = user.jury
+                flash('Welcome')
+                return render_template('index.html')
             else:
                 error = 'Invalid username or password.'
     return render_template('index.html', form=form, error=error)
+
 
 @users_blueprint.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -95,11 +99,13 @@ def register():
                 return render_template('register.html', form=form, error=error)
     return render_template('register.html', form=form, error=error)
 
+
 @users_blueprint.route('/users/all_users')
 @login_required
 def all_users():
     users = db.session.query(User).all()
     return render_template('users.html', users=users)
+
 
 @users_blueprint.route('/users/followers')
 @login_required
@@ -108,11 +114,11 @@ def followers():
     return render_template('followers.html', users=users)
 
 
-
 @users_blueprint.route('/about', methods=['GET'])
 def about():
     error = None
     return render_template('about.html', error=error)
+
 
 def make_group(issue_id):
     # Creates a group of users for jury duty task
@@ -122,6 +128,7 @@ def make_group(issue_id):
         member = Group.query.filter_by(issue_id=None).first()
         member.issue_id = issue_id
         current_size += 1
+
 
 @users_blueprint.route('/admin', methods=['GET', 'POST'])
 @login_required
@@ -150,17 +157,22 @@ def admin():
                 return render_template('admin.html', form=form, error=error)
     return render_template('admin.html', form=form, error=error, issues=issues)
 
+
 def filtered_comments(user_id):
 
     group = Group.query.filter_by(user_id=user_id).first()
-    member_ids = db.session.query(Group.user_id).filter_by(issue_id=group.issue_id)
-    user_comments = db.session.query(Discussion_Comment).filter_by(user_id=user_id)
+    member_ids = db.session.query(
+        Group.user_id).filter_by(issue_id=group.issue_id)
+    user_comments = db.session.query(
+        Discussion_Comment).filter_by(user_id=user_id)
     if member_ids.all():
-        member_comments = db.session.query(Discussion_Comment).filter(Discussion_Comment.user_id.in_(member_ids))
+        member_comments = db.session.query(Discussion_Comment).filter(
+            Discussion_Comment.user_id.in_(member_ids))
         result = user_comments.union(member_comments)
         return result.order_by(Discussion_Comment.posted.desc())
     else:
         return user_comments.order_by(Discussion_Comment.posted.desc())
+
 
 @users_blueprint.route('/jury', methods=['GET'])
 @login_required
@@ -169,8 +181,9 @@ def jury():
         'jury.html',
         form=PostJuryForm(),
         all_comments=filtered_comments(session['user_id']),
-        current_user_id = session['user_id']
+        current_user_id=session['user_id']
     )
+
 
 @users_blueprint.route('/jury/post', methods=['GET', 'POST'])
 @login_required
@@ -193,5 +206,5 @@ def post_discussion():
         form=form,
         error=error,
         all_comments=filtered_comments(session['user_id']),
-        current_user_id = session['user_id']
+        current_user_id=session['user_id']
     )

@@ -16,6 +16,7 @@
   <link href="{{ url_for('static', filename='css/main.css' )}}" rel="stylesheet">
   <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico' )}}">
   <script src="https://kit.fontawesome.com/267a006df9.js" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js' )}}"></script>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <link href="{{ url_for('static', filename='css/ie10-viewport-bug-workaround.css' )}}" rel="stylesheet">
@@ -28,6 +29,8 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    
 </head>
 
 <body>
@@ -35,7 +38,7 @@
   <div class="container">
     <div class="header clearfix">
       <nav>
-        <ul class="nav nav-pills pull-right" style = "float: right;">
+        <ul class="nav nav-pills pull-right" style="float: right;">
           {% if session.logged_in %}
           <li><a href="/">Home</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
           <li><a href="/tweets/">Boops</a></li>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -55,10 +58,14 @@
           {% endif %}
         </ul>
       </nav>
-      <h3><img src="../static/img/Beep_Logo.png" alt="Beep Logo" style="width: 4%; height: auto;"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> BEEP<span class = "exclamation">!</span></h3>
+      <h3><img src="../static/img/Beep_Logo.png" alt="Beep Logo" style="width: 4%; height: auto;"><span
+          class="glyphicon glyphicon-user" aria-hidden="true"></span> BEEP<span class="exclamation">!</span></h3>
     </div>
     {% for message in get_flashed_messages() %}
     <div class="alert alert-success">{{ message }}</div>
+
+   
+
     {% endfor %}
     {% if error %}
     <div class="error">
@@ -76,7 +83,7 @@
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="{{ url_for('static', filename='js/ie10-viewport-bug-workaround.js' )}}"></script>
-  <script src="{{ url_for('static', filename='js/bootstrap.min.js' )}}"></script>
+  
   <script type="text/javascript" src="{{ url_for('static', filename='js/index.js')}}"></script>
 </body>
 

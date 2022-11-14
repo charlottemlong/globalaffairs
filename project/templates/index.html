@@ -8,7 +8,7 @@
             {% if form.name.errors %}
             <span class="error">
             {% for error in form.name.errors %}
-                {{ error}}
+                {{ error }}
             {% endfor %}
             </span>
             {% endif %}
@@ -21,12 +21,16 @@
             {% endfor %}
             </span>
             {% endif %}
-    <button class="btn btn-sm btn-primary" type="submit" style="background-color: #8b11c6;">Sign in</button>
+    <button class="btn btn-sm btn-primary" type="submit" style="background-color: #8b11c6;" onclick="showChangeLogModal()">Sign in</button>
     </div>
     </form>
 {% endblock signin_form %}
 
+
 {% block content %}
+    {% if session.logged_in %}
+    <a href="{{url_for('tweets.modal')}}" class="btn btn-outline-success">View new changes</a>
+    {% endif %}
     <div class="jumbotron">
     <img src="static/img/Beep_Logo.png" alt="Beep Logo"><h1 style="font-family: 'Courier New', Courier, monospace;">BEEP<span class = "exclamation">!</span></h1>
     <p class="lead">the world's first democratic platform</p>
@@ -34,4 +38,9 @@
     <p><a class="btn btn-lg btn-success" href="/register/" role="button" style="color:white;">Sign up today</a></p>
     {% endif %}
     </div>
+    {% block modal %}{% endblock %}
+
+    {% block script %}{% endblock %}
 {% endblock content %}
+
+
