@@ -177,17 +177,33 @@ def filtered_comments(user_id):
 @users_blueprint.route('/jury', methods=['GET'])
 @login_required
 def jury():
+    member = Group.query.filter_by(user_id=session['user_id']).first()
+    issue_id = member.issue_id
+    if issue_id is not None:
+        issue = Issue.query.filter_by(id=issue_id).first()
+    else: 
+        issue = None
     return render_template(
         'jury.html',
         form=PostJuryForm(),
         all_comments=filtered_comments(session['user_id']),
+<<<<<<< HEAD
         current_user_id=session['user_id']
+=======
+        current_user_id = session['user_id'], issue=issue
+>>>>>>> ac028f132467035f62e21e1fe115f04eb83d0576
     )
 
 
 @users_blueprint.route('/jury/post', methods=['GET', 'POST'])
 @login_required
 def post_discussion():
+    member = Group.query.filter_by(user_id=session['user_id']).first()
+    issue_id = member.issue_id
+    if issue_id is not None:
+        issue = Issue.query.filter_by(id=issue_id).first()
+    else: 
+        issue = None
     error = None
     form = PostJuryForm()
     if request.method == 'POST':
@@ -206,5 +222,10 @@ def post_discussion():
         form=form,
         error=error,
         all_comments=filtered_comments(session['user_id']),
+<<<<<<< HEAD
         current_user_id=session['user_id']
     )
+=======
+        current_user_id = session['user_id'], issue=issue
+    )
+>>>>>>> ac028f132467035f62e21e1fe115f04eb83d0576
