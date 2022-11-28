@@ -37,17 +37,74 @@
             <div class="media-body">
                 <div>
 
-                <div class="media-heading">
-                    <h5 class="media-heading">{{ disc_comment.poster.name }}
-                    </h5>
+                    <div>
+
+                        {% if disc_comment.poster.name == session.name %}
+                        <div class="media-heading">
+                            <h4>{{ disc_comment.poster.name }}
+                                <small>{{ disc_comment.delta_time(disc_comment.posted) }} <a class="btn btn-default btn-xs"
+                                        href="{{ url_for('users.delete_disc', disc_id=disc_comment.comment_id )}}">Delete</a></small>
+    
+    
+                            </h4>
+                        </div>
+                        
+                    </div>
+
+                    {{ disc_comment.comment }}
+
+                    {% else %}
+                    <div class="media-heading">
+                        <h4 class="media-heading">{{ disc_comment.poster.name }}
+                            <small>{{ disc_comment.delta_time(disc_comment.posted) }} </small>
+    
+                        </h4>
+                    </div>
+    
+                    {{ disc_comment.comment }}
+    
+                    {% endif %}
+
+                    <br>
+
+
+                    <p>
+                    {% if disc_comment.replies|length > 0 %}
+                    <a data-bs-toggle="collapse" href="#replies-{{disc_comment.comment_id}}" role="button">
+                        <small>View {{disc_comment.replies|length}} Replies</small>
+                    </a>
+                    {% else %}
+                    <small class="text-muted">No Replies</small>
+                    {% endif %}
+                    </p>
+                    <div class="collapse" id="replies-{{disc_comment.comment_id}}">
+                        <div class="card">
+                            <div class="card-body" id="replies-expanded-{{disc_comment.id}}">
+                                {% for reply in disc_comment.replies %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <a href="/posts/{{reply.poster.name}}">{{reply.poster.name}}</a>: 
+                                        {{reply.text}}
+                                    </div>
+                                    <div>
+                                        <small class="text-muted"> {{reply.posted}}</small>
+                                        {% if current_user_id == reply.user_id or current_user_id == disc_comment.user_id %}
+
+                                        <a class="btn btn-default btn-xs" href="/delete-reply/{{reply.id}}">Delete</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- reply form! -->
+                    <form action="/create-reply/{{disc_comment.comment_id}}" method="POST" class="input-group mb-3">
+                        <input type="text" id="text" name="text" class="form-control" placeholder="Reply!">
+                        <button type="submit" class="btn btn-primary" style="background-color: #8b11c6; border: 0px;">Reply</button>
+                    </form>
                 </div>
-
-                {{ disc_comment.comment }}
-
-                <br>
-
-                <p>
-
             </div>
         </div>
         {% endfor %}

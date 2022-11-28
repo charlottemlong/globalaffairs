@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .forms import RegisterForm, LoginForm, JuryForm, PostJuryForm
 from project import db, bcrypt
-from project.models import User, Follower, Issue, Group, Discussion_Comment
+from project.models import User, Follower, Issue, Group, Discussion_Comment, Reply
 
 # config
 users_blueprint = Blueprint('users', __name__)
@@ -207,3 +207,58 @@ def post_discussion():
         all_comments=filtered_comments(session['user_id']),
         current_user_id = session['user_id'], issue=issue
     )
+
+@users_blueprint.route('/discussion/delete/<int:disc_id>/')
+@login_required
+def delete_disc(disc_id):
+    our_disc_id = disc_id
+    disc_comment = db.session.query(Discussion_Comment).filter_by(comment_id=our_disc_id)
+    if disc_comment.first():
+        if session['user_id'] == disc_comment.first().user_id:
+            disc_comment.delete()
+            db.session.commit()
+            flash('That comment was deleted.')
+            return redirect(url_for('users.jury'))
+        else:
+            flash('You can only delete comments that belong to you.')
+            return redirect(url_for('users.jury'))
+    else:
+        flash('That tweet does not exist. Saw what you did there, Hacker!')
+        return redirect(url_for('users.jury'))
+
+@users_blueprint.route('/create-reply/<comment_id>', methods=['POST'])
+@login_required
+def create_reply(comment_id):
+    our_comment_id = comment_id
+    text = request.form.get('text')
+
+    if not text:
+        flash('Reply cannot be empty', category='error')
+    else:
+        disc_comment = Discussion_Comment.query.filter_by(comment_id=our_comment_id)
+        if disc_comment:
+            reply = Reply(text,
+                            session['user_id'],
+                            datetime.datetime.now(),
+                            our_comment_id)
+            db.session.add(reply)
+            db.session.commit()
+        else:
+            flash("Discussion comment does not exist", category='error')
+
+    return redirect(url_for('users.jury'))
+
+@users_blueprint.route("/delete-reply/<reply_id>")
+@login_required
+def delete_reply(reply_id):
+    reply = Reply.query.filter_by(id=reply_id).first()
+
+    if not reply:
+        flash('Reply does not exist.', category='error')
+    elif session['user_id'] != reply.user_id and session['user_id'] != reply.disc_comment.user_id:
+        flash('You do not have permission to delete this reply.', category='error')
+    else:
+        db.session.delete(reply)
+        db.session.commit()
+
+    return redirect(url_for('users.jury'))
