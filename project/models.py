@@ -70,6 +70,7 @@ class User(db.Model):
     tweets = db.relationship('Tweet', back_populates='poster')
     role = db.Column(db.String, default='user')
     comments = db.relationship('Comment', back_populates='poster', passive_deletes=True)
+    changes = db.relationship('Change', back_populates='poster', passive_deletes=True)
     likes = db.relationship('Like', back_populates='liker', passive_deletes=True)
     discussion_comments = db.relationship('Discussion_Comment', back_populates='poster')
     replies = db.relationship('Reply', back_populates='poster', passive_deletes=True)
@@ -102,6 +103,14 @@ class Like(db.Model):
     liker = db.relationship('User', back_populates='likes', passive_deletes=True)
     tweet_id = db.Column(db.Integer, db.ForeignKey('tweets.tweet_id', ondelete="CASCADE"), nullable=False)
     tweet = db.relationship('Tweet', back_populates='likes', passive_deletes=True)
+
+class Change(db.Model):
+    __tablename__ = 'changes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date_created = db.Column(db.DateTime, nullable=False)
+    poster = db.relationship('User', back_populates='changes', passive_deletes=True)
+    likes = db.relationship('Like', back_populates='tweet', passive_deletes=True)
 
 class Follower(db.Model):
     __tablename__ = 'follower'

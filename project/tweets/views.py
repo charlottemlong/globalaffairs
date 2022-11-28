@@ -37,6 +37,10 @@ def filtered_tweets(user_id):
 
 
 # routes
+@tweets_blueprint.route('/modal')
+@login_required
+def modal():
+    return render_template('changelogmodal.html')
 
 @tweets_blueprint.route('/tweets/')
 @login_required
