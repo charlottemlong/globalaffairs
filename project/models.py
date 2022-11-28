@@ -109,8 +109,9 @@ class Change(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     poster = db.relationship('User', back_populates='changes', passive_deletes=True)
-    likes = db.relationship('Like', back_populates='tweet', passive_deletes=True)
+    # likes = db.relationship('Like', back_populates='tweet', passive_deletes=True)
 
 class Follower(db.Model):
     __tablename__ = 'follower'
