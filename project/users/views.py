@@ -160,7 +160,6 @@ def admin():
                 return render_template('admin.html', form=form, error=error)
     return render_template('admin.html', form=form, error=error, issues=issues)
 
-
 def filtered_comments(user_id):
 
     group = Group.query.filter_by(user_id=user_id).first()
@@ -175,7 +174,6 @@ def filtered_comments(user_id):
         return result.order_by(Discussion_Comment.posted.desc())
     else:
         return user_comments.order_by(Discussion_Comment.posted.desc())
-
 
 @users_blueprint.route('/jury', methods=['GET'])
 @login_required
@@ -192,7 +190,6 @@ def jury():
         all_comments=filtered_comments(session['user_id']),
         current_user_id = session['user_id'], issue=issue, date=datetime.datetime.now()
     )
-
 
 @users_blueprint.route('/jury/post', methods=['GET', 'POST'])
 @login_required

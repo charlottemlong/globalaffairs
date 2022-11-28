@@ -74,6 +74,7 @@ class User(db.Model):
     comments = db.relationship('Comment', back_populates='poster', passive_deletes=True)
     changes = db.relationship('Change', back_populates='poster', passive_deletes=True)
     likes = db.relationship('Like', back_populates='liker', passive_deletes=True)
+    upvotes = db.relationship('Upvote', back_populates='upvoter', passive_deletes=True)
     discussion_comments = db.relationship('Discussion_Comment', back_populates='poster')
     replies = db.relationship('Reply', back_populates='poster', passive_deletes=True)
 
@@ -106,6 +107,17 @@ class Like(db.Model):
     tweet_id = db.Column(db.Integer, db.ForeignKey('tweets.tweet_id', ondelete="CASCADE"), nullable=False)
     tweet = db.relationship('Tweet', back_populates='likes', passive_deletes=True)
 
+class Upvote(db.Model):
+    __tablename__ = 'upvotes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date_created = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    upvoter = db.relationship('User', back_populates='upvotes', passive_deletes=True)
+    change_id = db.Column(db.Integer, db.ForeignKey('changes.id', ondelete="CASCADE"), nullable=False)
+    change = db.relationship('Change', back_populates='upvotes', passive_deletes=True)
+
+
 class Change(db.Model):
     __tablename__ = 'changes'
 
@@ -113,7 +125,11 @@ class Change(db.Model):
     date_created = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     poster = db.relationship('User', back_populates='changes', passive_deletes=True)
+<<<<<<< HEAD
+    upvotes = db.relationship('Upvote', back_populates='change')
+=======
     # likes = db.relationship('Like', back_populates='tweet', passive_deletes=True)
+>>>>>>> fc984bd2c854ce73772d086e5be32fff2f33424f
 
 class Follower(db.Model):
     __tablename__ = 'follower'
