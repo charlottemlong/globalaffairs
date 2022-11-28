@@ -74,6 +74,7 @@ class User(db.Model):
     likes = db.relationship('Like', back_populates='liker', passive_deletes=True)
     upvotes = db.relationship('Upvote', back_populates='upvoter', passive_deletes=True)
     discussion_comments = db.relationship('Discussion_Comment', back_populates='poster')
+    replies = db.relationship('Reply', back_populates='poster', passive_deletes=True)
 
     def __init__(self, name=None, email=None, password=None, jury=None, role=None):
         self.name = name
@@ -122,7 +123,11 @@ class Change(db.Model):
     date_created = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     poster = db.relationship('User', back_populates='changes', passive_deletes=True)
+<<<<<<< HEAD
     upvotes = db.relationship('Upvote', back_populates='change')
+=======
+    # likes = db.relationship('Like', back_populates='tweet', passive_deletes=True)
+>>>>>>> fc984bd2c854ce73772d086e5be32fff2f33424f
 
 class Follower(db.Model):
     __tablename__ = 'follower'
@@ -181,6 +186,7 @@ class Discussion_Comment(db.Model):
     comment = db.Column(db.String, nullable=False)
     posted = db.Column(db.DateTime, nullable=False)
     poster = db.relationship("User", back_populates="discussion_comments", passive_deletes=True)
+    replies = db.relationship('Reply', back_populates='disc_comment', passive_deletes=True)
 
     def __init__(self, comment, posted, user_id):
         self.comment = comment
@@ -205,3 +211,39 @@ class Discussion_Comment(db.Model):
             return str(minutes) + 'm'
         else:
             return 'few seconds ago'
+
+    @classmethod
+    def delta_time(cls, tweet_posted):
+        now = datetime.datetime.now()
+        td = now - tweet_posted
+        days = td.days
+        hours = td.seconds//3600
+        minutes = (td.seconds//60)%60
+        if days > 0:
+            return tweet_posted.strftime("%d %B, %Y")
+        elif hours > 0:
+            return str(hours) + 'h'
+        elif minutes > 0:
+            return str(minutes) + 'm'
+        else:
+            return 'few seconds ago'
+
+class Reply(db.Model):
+    __tablename__ = 'replies'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    poster = db.relationship('User', back_populates='replies', passive_deletes=True)
+    text = db.Column(db.String, nullable=False)
+    posted = db.Column(db.DateTime, nullable=False)
+    reply_id = db.Column(db.Integer, db.ForeignKey('discussion_comments.comment_id', ondelete="CASCADE"), nullable=False)
+    disc_comment = db.relationship('Discussion_Comment', back_populates='replies', passive_deletes=True)
+
+    def __init__(self, text=None, user_id=None, posted=None, reply_id=None):
+        self.text = text
+        self.user_id = user_id
+        self.posted = posted
+        self.reply_id = reply_id
+
+    def __repr__(self):
+        pass
