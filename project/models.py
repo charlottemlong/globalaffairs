@@ -1,6 +1,8 @@
 import datetime
 
 from project import db
+from datetime import timedelta
+import datetime
 
 class Tweet(db.Model):
     __tablename__ = 'tweets'
@@ -152,12 +154,14 @@ class Issue(db.Model):
     question = db.Column(db.String, nullable=False)
     type = db.Column(db.String, nullable=False, default=False)
     result = db.Column(db.String, default='In Progress')
+    end_date = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, title=None, prompt=None, question=None, type=None):
         self.title = title
         self.prompt = prompt
         self.question = question
         self.type = type
+        self.end_date = datetime.datetime.now() + timedelta(days=10)
 
     def __repr__(self):
         return '<Issue {0} entitled {1}>'.format(self.id, self.title)
@@ -169,13 +173,15 @@ class Discussion_Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     comment = db.Column(db.String, nullable=False)
     posted = db.Column(db.DateTime, nullable=False)
+    archived = db.Column(db.String, nullable=False, default=False)
     poster = db.relationship("User", back_populates="discussion_comments", passive_deletes=True)
     replies = db.relationship('Reply', back_populates='disc_comment', passive_deletes=True)
 
-    def __init__(self, comment, posted, user_id):
+    def __init__(self, comment=None, posted=None, user_id=None, archived=False):
         self.comment = comment
         self.posted = posted
         self.user_id = user_id
+        self.archived = archived
 
     def __repr__(self):
         return '<Id {0} - {1}>'.format(self.tweet_id, self.tweet)

@@ -155,6 +155,9 @@ def admin():
             except IntegrityError:
                 error = 'Make sure all fields are filled in'
                 return render_template('admin.html', form=form, error=error)
+            except: 
+                error = 'Not enough users to fulfill jury'
+                return render_template('admin.html', form=form, error=error)
     return render_template('admin.html', form=form, error=error, issues=issues)
 
 
@@ -164,10 +167,10 @@ def filtered_comments(user_id):
     member_ids = db.session.query(
         Group.user_id).filter_by(issue_id=group.issue_id)
     user_comments = db.session.query(
-        Discussion_Comment).filter_by(user_id=user_id)
+        Discussion_Comment).filter_by(user_id=user_id).filter_by(archived=0)
     if member_ids.all():
         member_comments = db.session.query(Discussion_Comment).filter(
-            Discussion_Comment.user_id.in_(member_ids))
+            Discussion_Comment.user_id.in_(member_ids)).filter(Discussion_Comment.archived==0)
         result = user_comments.union(member_comments)
         return result.order_by(Discussion_Comment.posted.desc())
     else:
@@ -187,7 +190,7 @@ def jury():
         'jury.html',
         form=PostJuryForm(),
         all_comments=filtered_comments(session['user_id']),
-        current_user_id = session['user_id'], issue=issue
+        current_user_id = session['user_id'], issue=issue, date=datetime.datetime.now()
     )
 
 
@@ -207,7 +210,8 @@ def post_discussion():
             new_discuss_comment = Discussion_Comment(
                 form.comment.data,
                 datetime.datetime.now(),
-                session['user_id']
+                session['user_id'],
+                False
             )
             db.session.add(new_discuss_comment)
             db.session.commit()
@@ -218,7 +222,7 @@ def post_discussion():
         form=form,
         error=error,
         all_comments=filtered_comments(session['user_id']),
-        current_user_id = session['user_id'], issue=issue
+        current_user_id = session['user_id'], issue=issue, date=datetime.datetime.now()
     )
 
 @users_blueprint.route('/discussion/delete/<int:disc_id>/')
@@ -276,3 +280,29 @@ def delete_reply(reply_id):
 
     return redirect(url_for('users.jury'))
 
+@users_blueprint.route('/closejury/<issue_id>', methods=['GET'])
+@login_required
+@admin_required
+def close_jury(issue_id):
+    if issue_id is not None:
+        issue = Issue.query.filter_by(id=issue_id).first()
+        if issue.result == "In Progress":
+            try:
+                member_ids = db.session.query(Group.user_id).filter_by(issue_id=issue_id)
+                if member_ids.all():
+                    discussion_comments = db.session.query(Discussion_Comment).filter(Discussion_Comment.user_id.in_(member_ids))
+                    for comment in discussion_comments:
+                        comment.archived = True
+                    db.session.commit()
+                db.session.query(Group).filter_by(issue_id=issue_id).update({'issue_id': None})
+                db.session.commit()
+                db.session.query(Issue).filter_by(id=issue_id).update({'result': "Closed"})
+                db.session.commit()
+                flash('The jury issue has been closed.')
+            except:
+                flash('Jury issue was not able to be closed.', category='error')
+        else: 
+            flash('Jury issue is already closed.', category='error')
+    else: 
+        flash('Jury issue does not exist.', category='error')
+    return redirect(url_for('users.admin'))

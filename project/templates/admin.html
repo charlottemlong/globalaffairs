@@ -62,10 +62,12 @@
             </a>
         </div>
         <div class="media-body">
-            <h4 class="media-heading">{{issue.id}} {{ issue.title }} </h4>
+            <h4 class="media-heading">{{issue.id}} {{ issue.title }}</h4>
             Question: {{issue.question}} 
             <br>
-            Result: {{issue.result}}
+            Result: {{issue.result}} {% if issue.result == "In Progress" %}<a href="{{ url_for('users.close_jury', issue_id=issue.id )}}">Close Issue</a> {% endif %}
+            <br>
+            <a href="/">View Discussion</a>
         </div>
     </div>
     {% endfor %}
