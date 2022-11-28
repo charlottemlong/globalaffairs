@@ -187,11 +187,7 @@ def jury():
         'jury.html',
         form=PostJuryForm(),
         all_comments=filtered_comments(session['user_id']),
-<<<<<<< HEAD
-        current_user_id=session['user_id']
-=======
         current_user_id = session['user_id'], issue=issue
->>>>>>> ac028f132467035f62e21e1fe115f04eb83d0576
     )
 
 
@@ -222,10 +218,5 @@ def post_discussion():
         form=form,
         error=error,
         all_comments=filtered_comments(session['user_id']),
-<<<<<<< HEAD
-        current_user_id=session['user_id']
-    )
-=======
         current_user_id = session['user_id'], issue=issue
     )
->>>>>>> ac028f132467035f62e21e1fe115f04eb83d0576
