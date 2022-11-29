@@ -187,7 +187,7 @@ def jury():
         elif issue.type == '1':
             vote_form = BinaryVoteForm(request.form)
         elif issue.type == '2':
-            vote_form = FeedbackVoteForm(request.form)
+            vote_form = None
         else:
             flash('Invalid feedback type.', category='error')
             vote_form = None

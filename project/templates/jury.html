@@ -62,7 +62,7 @@ var x = setInterval(function() {
   // If the count down is finished, write some text
   if (distance < 0) {
     clearInterval(x);
-    document.getElementById("time").innerHTML = "Discussion time has concluded. Please vote.";
+    document.getElementById("time").innerHTML = "Discussion time has concluded. If a poll is available, please vote. Otherwise, administrators will review your feedback.";
     document.getElementById("time").style.background = "#8b11c6";
     document.getElementById("discussionform").innerHTML = "";
     document.getElementById("deletebutt").innerHTML = "";
