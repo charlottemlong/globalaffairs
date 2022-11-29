@@ -202,6 +202,22 @@ class Discussion_Comment(db.Model):
     def __repr__(self):
         return '<Id {0} - {1}>'.format(self.tweet_id, self.tweet)
 
+    @classmethod
+    def delta_time(cls, comment_posted):
+        now = datetime.datetime.now()
+        td = now - comment_posted
+        days = td.days
+        hours = td.seconds//3600
+        minutes = (td.seconds//60)%60
+        if days > 0:
+            return comment_posted.strftime("%d %B, %Y")
+        elif hours > 0:
+            return str(hours) + 'h'
+        elif minutes > 0:
+            return str(minutes) + 'm'
+        else:
+            return 'few seconds ago'
+
 
 class Reply(db.Model):
     __tablename__ = 'replies'

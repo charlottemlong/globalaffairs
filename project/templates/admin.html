@@ -56,18 +56,13 @@
 <div class="row marketing">
     {% for issue in issues %}
     <div class="media">
-        <div class="media-left">
-            <a href="#">
-                <img src="" alt="" />
-            </a>
-        </div>
         <div class="media-body">
             <h4 class="media-heading">{{issue.id}} {{ issue.title }}</h4>
             Question: {{issue.question}} 
             <br>
             Result: {{issue.result}} {% if issue.result == "In Progress" %}<a href="{{ url_for('users.close_jury', issue_id=issue.id )}}">Close Issue</a> {% endif %}
             <br>
-            <a href="/">View Discussion</a>
+            <a href="{{ url_for('users.view_discussion', issue_id=issue.id )}}">View Discussion</a>
         </div>
     </div>
     {% endfor %}

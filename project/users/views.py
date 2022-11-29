@@ -368,3 +368,18 @@ def close_jury(issue_id):
     else: 
         flash('Jury issue does not exist.', category='error')
     return redirect(url_for('users.admin'))
+
+@users_blueprint.route('/view-discussion/<issue_id>', methods=['GET'])
+@login_required
+@admin_required
+def view_discussion(issue_id):
+    if issue_id is not None:
+        issue = Issue.query.filter_by(id=issue_id).first()  
+        discussion_comments = db.session.query(Discussion_Comment).filter_by(issue_id=issue_id)     
+    else: 
+        issue = None
+
+    return render_template(
+        'viewdiscuss.html',
+        issue=issue, all_comments = discussion_comments
+    )
