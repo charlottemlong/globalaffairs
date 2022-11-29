@@ -10,11 +10,33 @@
 
 <p id="time" style="text-align:center; background: #93a563; border-radius: 25px; color: white; font-size: 20px;">Remaining time for discussion: <span id="timer"></span></p>
 <br>
+{% if vote_form == None %}
+{% else %}
+<div id="vote">
+    <form action="/jury" method="post" style = "margin: auto;">
+        {{ vote_form.csrf_token }}
+        <p>
+            {{issue.question}}
+            {{ vote_form.vote }}
+            {% if vote_form.vote.errors %}
+            <span class="error">
+                {% for error in vote_form.vote.errors %}
+                    {{ error }}
+                {% endfor %}
+            </span>
+            {% endif %}
+        </p>
+    <button class="btn btn-sm btn-success" type="submit" style="background-color: #8b11c6; text-align:center;">Submit Vote</button>
+    </form>
+<br>
+<br>
+</div>
+{% endif %}
 
 <script>
 // Set the date we're counting down to and adjust month because of python & javascript differences
 var month = (parseInt("{{issue.end_date.month}}") - 1)
-var countDownDate = new Date("{{issue.end_date.year}}", month, "{{issue.end_date.day}}", "{{issue.end_date.hour}}", "{{issue.end_date.minute}}", "{{issue.end_date.second}}", 0);
+var countDownDate = new Date("{{issue.end_date.year}}", 9, "{{issue.end_date.day}}", "{{issue.end_date.hour}}", "{{issue.end_date.minute}}", "{{issue.end_date.second}}", 0);
 
 // Update the count down every 1 second
 //adapted from https://www.w3schools.com/howto/howto_js_countdown.asp
@@ -35,16 +57,20 @@ var x = setInterval(function() {
   // Display the result in the element with id="timer"
   document.getElementById("timer").innerHTML = days + " Days " + hours + " Hours "
   + minutes + " Minutes " + seconds + " Seconds ";
-    //document.getElementById("timer").innerHTML = countDownDate;
+
 
   // If the count down is finished, write some text
   if (distance < 0) {
     clearInterval(x);
     document.getElementById("time").innerHTML = "Discussion time has concluded. Please vote.";
+    document.getElementById("time").style.background = "#8b11c6";
     document.getElementById("discussionform").innerHTML = "";
     document.getElementById("deletebutt").innerHTML = "";
     document.getElementById("submitreply").innerHTML = "";
     document.getElementById("delrep").innerHTML = "";
+  }
+  else {
+    document.getElementById("vote").innerHTML = "";
   }
 }, 1000);
 

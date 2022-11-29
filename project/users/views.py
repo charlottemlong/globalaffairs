@@ -5,7 +5,7 @@ from flask import (flash, redirect, render_template,
                    request, session, url_for, Blueprint)
 from sqlalchemy.exc import IntegrityError
 
-from .forms import RegisterForm, LoginForm, JuryForm, PostJuryForm
+from .forms import RegisterForm, LoginForm, JuryForm, PostJuryForm, ScaleVoteForm, BinaryVoteForm, FeedbackVoteForm
 from project import db, bcrypt
 from project.models import User, Follower, Issue, Group, Discussion_Comment, Reply
 
@@ -175,20 +175,44 @@ def filtered_comments(user_id):
     else:
         return user_comments.order_by(Discussion_Comment.posted.desc())
 
-@users_blueprint.route('/jury', methods=['GET'])
+@users_blueprint.route('/jury', methods=['GET', 'POST'])
 @login_required
 def jury():
     member = Group.query.filter_by(user_id=session['user_id']).first()
     issue_id = member.issue_id
     if issue_id is not None:
         issue = Issue.query.filter_by(id=issue_id).first()
+        if issue.type == '0':
+            vote_form = ScaleVoteForm(request.form)
+        elif issue.type == '1':
+            vote_form = BinaryVoteForm(request.form)
+        elif issue.type == '2':
+            vote_form = FeedbackVoteForm(request.form)
+        else:
+            flash('Invalid feedback type.', category='error')
+            vote_form = None
+            
     else: 
         issue = None
+        vote_form = None
+
+    if request.method == 'POST':
+        if vote_form.validate():
+            try:
+                db.session.query(Group).filter_by(user_id=session['user_id']).update({'vote': vote_form.vote.data})
+                db.session.commit()
+                flash('You successfully voted. Thank you for your participation in the jury!')
+                return redirect(url_for('users.jury'))
+            except IntegrityError:
+                error = 'Make sure to vote before submitting'
+                return redirect(url_for('users.jury'))
+
     return render_template(
         'jury.html',
         form=PostJuryForm(),
         all_comments=filtered_comments(session['user_id']),
-        current_user_id = session['user_id'], issue=issue, date=datetime.datetime.now()
+        current_user_id = session['user_id'], issue=issue, date=datetime.datetime.now(),
+        vote_form = vote_form
     )
 
 @users_blueprint.route('/jury/post', methods=['GET', 'POST'])
@@ -208,7 +232,7 @@ def post_discussion():
                 form.comment.data,
                 datetime.datetime.now(),
                 session['user_id'],
-                False
+                False, issue_id
             )
             db.session.add(new_discuss_comment)
             db.session.commit()
@@ -286,14 +310,55 @@ def close_jury(issue_id):
         if issue.result == "In Progress":
             try:
                 member_ids = db.session.query(Group.user_id).filter_by(issue_id=issue_id)
+                member_votes = db.session.query(Group.vote).filter_by(issue_id=issue_id)
+                if issue.type == '0':
+                    strongly_disagree, disagree, neutral, agree, strongly_agree, undecided_count = 0, 0, 0, 0, 0, 0
+                    for vote in member_votes:
+                        if vote[0] == '0':
+                            strongly_disagree += 1
+                        elif vote[0] == '1':
+                            disagree += 1
+                        elif vote[0] == '2':
+                            neutral += 1
+                        elif vote[0] == '3':
+                            agree += 1
+                        elif vote[0] == '4':
+                            strongly_agree += 1
+                        else:
+                            undecided_count += 1
+                    total_votes = strongly_disagree + disagree + neutral + agree + strongly_agree + undecided_count
+                    result_string = "Strongly Disagree: {}% Disagree: {}% Neutral: {}% Agree: {}% Strongly Agree: {}% Undecided: {}%".format(
+                        ((strongly_disagree/total_votes)*100), ((disagree/total_votes)*100), ((neutral/total_votes)*100), 
+                        ((agree/total_votes)*100), ((strongly_agree/total_votes)*100), ((undecided_count/total_votes)*100))
+                    db.session.query(Issue).filter_by(id=issue_id).update({'result': result_string})
+                    db.session.commit()
+                elif issue.type == '1':
+                    no_count = 0
+                    yes_count = 0
+                    undecided_count = 0
+                    for vote in member_votes:
+                        if vote[0] == '0':
+                            no_count += 1
+                        elif vote[0] == '1':
+                            yes_count += 1
+                        else:
+                            undecided_count += 1
+                    total_votes = no_count + yes_count + undecided_count
+                    result_string = "No Votes: {}% Yes Votes: {}% Undecided Votes: {}%".format(((no_count/total_votes)*100), ((yes_count/total_votes)*100), ((undecided_count/total_votes)*100))
+                    db.session.query(Issue).filter_by(id=issue_id).update({'result': result_string})
+                    db.session.commit()
+                elif issue.type == '2':
+                    db.session.query(Issue).filter_by(id=issue_id).update({'result': "Feedback closed"})
+                    db.session.commit()
+                else:
+                    db.session.query(Issue).filter_by(id=issue_id).update({'result': "Closed"})
+                    db.session.commit()
                 if member_ids.all():
                     discussion_comments = db.session.query(Discussion_Comment).filter(Discussion_Comment.user_id.in_(member_ids))
                     for comment in discussion_comments:
                         comment.archived = True
                     db.session.commit()
-                db.session.query(Group).filter_by(issue_id=issue_id).update({'issue_id': None})
-                db.session.commit()
-                db.session.query(Issue).filter_by(id=issue_id).update({'result': "Closed"})
+                db.session.query(Group).filter_by(issue_id=issue_id).update({'issue_id': None, 'vote': 'Undecided'})
                 db.session.commit()
                 flash('The jury issue has been closed.')
             except:

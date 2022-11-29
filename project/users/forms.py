@@ -58,3 +58,21 @@ class PostJuryForm(FlaskForm):
         'Comment',
         validators=[DataRequired(), Length(min=6, max=140)]
     )
+
+class ScaleVoteForm(Form):
+    vote = RadioField(
+        'Vote',
+        choices=[(0,'Strongly Disagree'),(1,'Disagree'),(2, 'Neutral'),(3,'Agree'),(4,'Strongly Agree')]
+    )
+
+class BinaryVoteForm(Form):
+    vote = RadioField(
+        'Vote',
+        choices=[(0,'No'),(1,'Yes')]
+    )
+
+class FeedbackVoteForm(Form):
+    vote = StringField(
+        'Feedback',
+        validators=[DataRequired()]
+    )
