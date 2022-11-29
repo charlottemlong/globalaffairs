@@ -36,7 +36,7 @@
 <script>
 // Set the date we're counting down to and adjust month because of python & javascript differences
 var month = (parseInt("{{issue.end_date.month}}") - 1)
-var countDownDate = new Date("{{issue.end_date.year}}", 9, "{{issue.end_date.day}}", "{{issue.end_date.hour}}", "{{issue.end_date.minute}}", "{{issue.end_date.second}}", 0);
+var countDownDate = new Date("{{issue.end_date.year}}", month, "{{issue.end_date.day}}", "{{issue.end_date.hour}}", "{{issue.end_date.minute}}", "{{issue.end_date.second}}", 0);
 
 // Update the count down every 1 second
 //adapted from https://www.w3schools.com/howto/howto_js_countdown.asp
