@@ -1,8 +1,10 @@
 {% extends '_base.html' %}
 
 {% block content %}
-<h4>Administrator Tools<span class = "exclamation">!</span></h4>
+<h4 style="text-align:center">Administrator Tools<span class = "exclamation">!</span></h4>
 <br>
+<div class="row marketing">
+<div class="col-lg-6">
 <h5>Create Issue for Jury</h5>
 <br>
 <form action="/admin" method="post" style = "margin: auto;">
@@ -50,10 +52,11 @@
     </p>
 <button class="btn btn-sm btn-success" type="submit" style="background-color: #8b11c6;">Create Issue</button>
 </form>
+</div>
 <br>
 <br>
+<div class="col-lg-6">
 <h5>All Jury Issues</h5>
-<div class="row marketing">
     {% for issue in issues %}
     <div class="media">
         <div class="media-body">
@@ -63,9 +66,12 @@
             Result: {{issue.result}} {% if issue.result == "In Progress" %}<a href="{{ url_for('users.close_jury', issue_id=issue.id )}}">Close Issue</a> {% endif %}
             <br>
             <a href="{{ url_for('users.view_discussion', issue_id=issue.id )}}">View Discussion</a>
+            <br>
+            <br>
         </div>
     </div>
     {% endfor %}
+</div>
 </div>
 <br>
 {% endblock %}
