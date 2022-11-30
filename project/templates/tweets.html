@@ -115,4 +115,79 @@
         {% endfor %}
     </div>
 </div>
+
+<div class="modal" tabindex="-1" id="surveyModal" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered mx-0 mx-sm-auto">
+      <div class="modal-content">
+        <div class="modal-header header-bg">
+          <h5 class="modal-title text-white">Survey!</h5>
+        </div>
+        <div class="modal-body">
+            <div class="text-center">
+              <i class="far fa-file-alt fa-4x mb-3" style="color: #8911c6;"></i>
+              <p>
+                <strong>Your opinion matters</strong>
+              </p>
+              <p>
+                You cannot leave this screen until you've made your voice heard!
+                <strong>Give us your feedback.</strong>
+              </p>
+            </div>
+    
+            <hr/>
+    
+            <form class="px-4" action="/submit-feedback" method="GET">
+              <p class="text-center">Musk has been allowed to join Beep. What do you think?</p>
+    
+              <div class="form-check mb-2" >
+                <input class="form-check-input" type="radio" name="opinion" value="Agree" id="Agree" required/>
+                <label class="form-check-label" for="Agree">
+                  Agree
+                </label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="opinion" value="Meh" id="Meh"/>
+                <label class="form-check-label" for="Meh">
+                  Meh
+                </label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="opinion" value="Disagree" id="Disagree"/>
+                <label class="form-check-label" for="Disagree">
+                  Disagree
+                </label>
+              </div>
+
+              <p class="text-center"><strong>Anything you'd like to say?</strong></p>
+    
+              <!-- Message input -->
+              <div class="form-outline mb-4">
+                <textarea class="form-control" id="form4Example4" rows="4" name="feedback"></textarea>
+                <label class="form-label" for="form4Example4">Your feedback</label>
+              </div>
+
+              <button type="submit" class="btn text-white" style="background-color:#8911c6">Submit</button>
+            </form>
+          </div>
+        <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div> -->
+      </div>
+    </div>
+  </div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js">
+</script>
+<script type="text/javascript">
+ $(document).ready(function() {
+     if ($.cookie('pop') == null) {
+         $('#surveyModal').modal('show');
+         $.cookie('pop', '1');
+     }
+ });
+</script>
+<!-- <script type="text/javascript">
+    $(window).on('load', function() {
+        $('#surveyModal').modal('show');
+    });
+</script> -->
 {% endblock content %}

@@ -139,8 +139,16 @@ class Change(db.Model):
     poster = db.relationship('User', back_populates='changes', passive_deletes=True)
     upvotes = db.relationship('Upvote', back_populates='change')
     downvotes = db.relationship('Downvote', back_populates='change')
-    
+
     # likes = db.relationship('Like', back_populates='tweet', passive_deletes=True)
+class Survey_Response(db.Model):
+    __tablename__ = 'survey_responses'
+
+    id = db.Column(db.Integer, primary_key=True)
+    change_id = db.Column(db.Integer, db.ForeignKey('changes.id', ondelete="CASCADE"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    opinion = db.Column(db.String, nullable=False)
+    feedback = db.Column(db.String, nullable=False)
 
 class Follower(db.Model):
     __tablename__ = 'follower'

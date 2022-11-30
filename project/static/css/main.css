@@ -16,3 +16,7 @@
   .downvote {
     transform: rotate(180deg);
   }
+
+  .header-bg {
+    background-color: #8911c6;
+  }

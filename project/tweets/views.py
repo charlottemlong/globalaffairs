@@ -52,6 +52,18 @@ def modal():
                             changes=changes,
                             current_user_id = session['user_id'])
 
+@tweets_blueprint.route('/submit-feedback', methods=['GET'])
+@login_required
+def submit_feedback():
+    print(request.form.get('opinion'))
+
+    return render_template(
+        'tweets.html',
+        form=PostTweetForm(),
+        all_tweets=filtered_tweets(session['user_id']),
+        current_user_id = session['user_id']
+    )
+
 @tweets_blueprint.route('/tweets/')
 @login_required
 def tweet():
