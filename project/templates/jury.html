@@ -12,7 +12,7 @@
 <br>
 {% if vote_form == None %}
 {% else %}
-You may only vote once. After submitting your vote, you will no longer be able to view the discussion or change your vote.
+<p id="voteinfo">You may only vote once. After submitting your vote, you will no longer be able to view the discussion or change your vote.</p>
 <br>
 <div id="vote">
     <form action="/jury" method="post" style = "margin: auto;">
@@ -73,6 +73,7 @@ var x = setInterval(function() {
   }
   else {
     document.getElementById("vote").innerHTML = "";
+    document.getElementById("voteinfo").innerHTML = "";
   }
 }, 1000);
 

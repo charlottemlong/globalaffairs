@@ -301,3 +301,141 @@ def post_discussion():
         current_user_id = session['user_id'], 
         issue=issue
 )
+
+@users_blueprint.route('/discussion/delete/<int:disc_id>/')
+@login_required
+def delete_disc(disc_id):
+    our_disc_id = disc_id
+    disc_comment = db.session.query(Discussion_Comment).filter_by(comment_id=our_disc_id)
+    if disc_comment.first():
+        if session['user_id'] == disc_comment.first().user_id:
+            disc_comment.delete()
+            db.session.commit()
+            flash('That comment was deleted.')
+            return redirect(url_for('users.jury'))
+        else:
+            flash('You can only delete comments that belong to you.')
+            return redirect(url_for('users.jury'))
+    else:
+        flash('That tweet does not exist. Saw what you did there, Hacker!')
+        return redirect(url_for('users.jury'))
+
+@users_blueprint.route('/create-reply/<comment_id>', methods=['POST'])
+@login_required
+def create_reply(comment_id):
+    our_comment_id = comment_id
+    text = request.form.get('text')
+
+    if not text:
+        flash('Reply cannot be empty', category='error')
+    else:
+        disc_comment = Discussion_Comment.query.filter_by(comment_id=our_comment_id)
+        if disc_comment:
+            reply = Reply(text,
+                            session['user_id'],
+                            datetime.datetime.now(),
+                            our_comment_id)
+            db.session.add(reply)
+            db.session.commit()
+        else:
+            flash("Discussion comment does not exist", category='error')
+
+    return redirect(url_for('users.jury'))
+
+@users_blueprint.route("/delete-reply/<reply_id>")
+@login_required
+def delete_reply(reply_id):
+    reply = Reply.query.filter_by(id=reply_id).first()
+
+    if not reply:
+        flash('Reply does not exist.', category='error')
+    elif session['user_id'] != reply.user_id and session['user_id'] != reply.disc_comment.user_id:
+        flash('You do not have permission to delete this reply.', category='error')
+    else:
+        db.session.delete(reply)
+        db.session.commit()
+
+    return redirect(url_for('users.jury'))
+
+@users_blueprint.route('/closejury/<issue_id>', methods=['GET'])
+@login_required
+@admin_required
+def close_jury(issue_id):
+    if issue_id is not None:
+        issue = Issue.query.filter_by(id=issue_id).first()
+        if issue.result == "In Progress":
+            try:
+                member_ids = db.session.query(Group.user_id).filter_by(issue_id=issue_id)
+                member_votes = db.session.query(Group.vote).filter_by(issue_id=issue_id)
+                if issue.type == '0':
+                    strongly_disagree, disagree, neutral, agree, strongly_agree, undecided_count = 0, 0, 0, 0, 0, 0
+                    for vote in member_votes:
+                        if vote[0] == '0':
+                            strongly_disagree += 1
+                        elif vote[0] == '1':
+                            disagree += 1
+                        elif vote[0] == '2':
+                            neutral += 1
+                        elif vote[0] == '3':
+                            agree += 1
+                        elif vote[0] == '4':
+                            strongly_agree += 1
+                        else:
+                            undecided_count += 1
+                    total_votes = strongly_disagree + disagree + neutral + agree + strongly_agree + undecided_count
+                    result_string = "Strongly Disagree: {}% Disagree: {}% Neutral: {}% Agree: {}% Strongly Agree: {}% Undecided: {}%".format(
+                        ((strongly_disagree/total_votes)*100), ((disagree/total_votes)*100), ((neutral/total_votes)*100), 
+                        ((agree/total_votes)*100), ((strongly_agree/total_votes)*100), ((undecided_count/total_votes)*100))
+                    db.session.query(Issue).filter_by(id=issue_id).update({'result': result_string})
+                    db.session.commit()
+                elif issue.type == '1':
+                    no_count = 0
+                    yes_count = 0
+                    undecided_count = 0
+                    for vote in member_votes:
+                        if vote[0] == '0':
+                            no_count += 1
+                        elif vote[0] == '1':
+                            yes_count += 1
+                        else:
+                            undecided_count += 1
+                    total_votes = no_count + yes_count + undecided_count
+                    result_string = "No Votes: {}% Yes Votes: {}% Undecided Votes: {}%".format(((no_count/total_votes)*100), ((yes_count/total_votes)*100), ((undecided_count/total_votes)*100))
+                    db.session.query(Issue).filter_by(id=issue_id).update({'result': result_string})
+                    db.session.commit()
+                elif issue.type == '2':
+                    db.session.query(Issue).filter_by(id=issue_id).update({'result': "Feedback closed"})
+                    db.session.commit()
+                else:
+                    db.session.query(Issue).filter_by(id=issue_id).update({'result': "Closed"})
+                    db.session.commit()
+                if member_ids.all():
+                    discussion_comments = db.session.query(Discussion_Comment).filter(Discussion_Comment.user_id.in_(member_ids))
+                    for comment in discussion_comments:
+                        comment.archived = True
+                    db.session.commit()
+                db.session.query(Group).filter_by(issue_id=issue_id).update({'issue_id': None, 'vote': 'Undecided'})
+                db.session.commit()
+                flash('The jury issue has been closed.')
+            except:
+                flash('Jury issue was not able to be closed.', category='error')
+        else: 
+            flash('Jury issue is already closed.', category='error')
+    else: 
+        flash('Jury issue does not exist.', category='error')
+    return redirect(url_for('users.admin'))
+
+@users_blueprint.route('/view-discussion/<issue_id>', methods=['GET'])
+@login_required
+@admin_required
+def view_discussion(issue_id):
+    if issue_id is not None:
+        issue = Issue.query.filter_by(id=issue_id).first()  
+        discussion_comments = db.session.query(Discussion_Comment).filter_by(issue_id=issue_id)     
+    else: 
+        issue = None
+
+    return render_template(
+        'viewdiscuss.html',
+        issue=issue, all_comments = discussion_comments
+    )
