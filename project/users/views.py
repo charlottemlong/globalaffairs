@@ -5,7 +5,7 @@ from flask import (flash, redirect, render_template,
                    request, session, url_for, Blueprint, jsonify)
 from sqlalchemy.exc import IntegrityError
 
-from .forms import RegisterForm, LoginForm, JuryForm, PostJuryForm
+from .forms import RegisterForm, LoginForm, JuryForm, PostJuryForm, ScaleVoteForm, BinaryVoteForm, FeedbackVoteForm
 from project import db, bcrypt
 from project.models import User, Follower, Issue, Group, Discussion_Comment, Reply, Change, Upvote, Downvote
 
@@ -209,6 +209,9 @@ def admin():
             except IntegrityError:
                 error = 'Make sure all fields are filled in'
                 return render_template('admin.html', form=form, error=error)
+            except: 
+                error = 'Not enough users to fulfill jury'
+                return render_template('admin.html', form=form, error=error)
     return render_template('admin.html', form=form, error=error, issues=issues)
 
 def filtered_comments(user_id):
@@ -217,29 +220,54 @@ def filtered_comments(user_id):
     member_ids = db.session.query(
         Group.user_id).filter_by(issue_id=group.issue_id)
     user_comments = db.session.query(
-        Discussion_Comment).filter_by(user_id=user_id)
+        Discussion_Comment).filter_by(user_id=user_id).filter_by(archived=0)
     if member_ids.all():
         member_comments = db.session.query(Discussion_Comment).filter(
-            Discussion_Comment.user_id.in_(member_ids))
+            Discussion_Comment.user_id.in_(member_ids)).filter(Discussion_Comment.archived==0)
         result = user_comments.union(member_comments)
         return result.order_by(Discussion_Comment.posted.desc())
     else:
         return user_comments.order_by(Discussion_Comment.posted.desc())
 
-@users_blueprint.route('/jury', methods=['GET'])
+@users_blueprint.route('/jury', methods=['GET', 'POST'])
 @login_required
 def jury():
     member = Group.query.filter_by(user_id=session['user_id']).first()
     issue_id = member.issue_id
-    if issue_id is not None:
+    vote = member.vote
+    if issue_id is not None and vote == "Undecided":
         issue = Issue.query.filter_by(id=issue_id).first()
+        if issue.type == '0':
+            vote_form = ScaleVoteForm(request.form)
+        elif issue.type == '1':
+            vote_form = BinaryVoteForm(request.form)
+        elif issue.type == '2':
+            vote_form = None
+        else:
+            flash('Invalid feedback type.', category='error')
+            vote_form = None
+            
     else: 
         issue = None
+        vote_form = None
+
+    if request.method == 'POST':
+        if vote_form.validate():
+            try:
+                db.session.query(Group).filter_by(user_id=session['user_id']).update({'vote': vote_form.vote.data})
+                db.session.commit()
+                flash('You successfully voted. Thank you for your participation in the jury!')
+                return redirect(url_for('users.jury'))
+            except IntegrityError:
+                error = 'Make sure to vote before submitting'
+                return redirect(url_for('users.jury'))
+
     return render_template(
         'jury.html',
         form=PostJuryForm(),
         all_comments=filtered_comments(session['user_id']),
-        current_user_id = session['user_id'], issue=issue
+        current_user_id = session['user_id'], issue=issue, date=datetime.datetime.now(),
+        vote_form = vote_form
     )
 
 @users_blueprint.route('/jury/post', methods=['GET', 'POST'])
@@ -258,7 +286,8 @@ def post_discussion():
             new_discuss_comment = Discussion_Comment(
                 form.comment.data,
                 datetime.datetime.now(),
-                session['user_id']
+                session['user_id'],
+                False, issue_id
             )
             db.session.add(new_discuss_comment)
             db.session.commit()
@@ -269,5 +298,6 @@ def post_discussion():
         form=form,
         error=error,
         all_comments=filtered_comments(session['user_id']),
-        current_user_id = session['user_id'], issue=issue
-    )
+        current_user_id = session['user_id'], 
+        issue=issue
+)

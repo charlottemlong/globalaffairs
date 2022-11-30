@@ -1,6 +1,8 @@
 import datetime
 
 from project import db
+from datetime import timedelta
+import datetime
 
 class Tweet(db.Model):
     __tablename__ = 'tweets'
@@ -161,10 +163,12 @@ class Group(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
     issue_id = db.Column(db.Integer, db.ForeignKey('issues.id', ondelete="CASCADE"))
+    vote = db.Column(db.String, nullable=False)
 
-    def __init__(self, user_id=None, issue_id=None):
+    def __init__(self, user_id=None, issue_id=None, vote="Undecided"):
         self.user_id = user_id
         self.issue_id = issue_id
+        self.vote = vote
 
     def __repr__(self):
         return str(self.issue_id)
@@ -174,16 +178,18 @@ class Issue(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, unique=True, nullable=False)
-    prompt = db.Column(db.String, unique=True, nullable=False)
+    prompt = db.Column(db.String, nullable=False)
     question = db.Column(db.String, nullable=False)
     type = db.Column(db.String, nullable=False, default=False)
     result = db.Column(db.String, default='In Progress')
+    end_date = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, title=None, prompt=None, question=None, type=None):
         self.title = title
         self.prompt = prompt
         self.question = question
         self.type = type
+        self.end_date = datetime.datetime.now() + timedelta(days=10)
 
     def __repr__(self):
         return '<Issue {0} entitled {1}>'.format(self.id, self.title)
@@ -195,13 +201,17 @@ class Discussion_Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     comment = db.Column(db.String, nullable=False)
     posted = db.Column(db.DateTime, nullable=False)
+    archived = db.Column(db.String, nullable=False, default=False)
+    issue_id = db.Column(db.Integer, db.ForeignKey('issues.id', ondelete="CASCADE"), nullable=False)
     poster = db.relationship("User", back_populates="discussion_comments", passive_deletes=True)
     replies = db.relationship('Reply', back_populates='disc_comment', passive_deletes=True)
 
-    def __init__(self, comment, posted, user_id):
+    def __init__(self, comment=None, posted=None, user_id=None, archived=False, issue_id = None):
         self.comment = comment
         self.posted = posted
         self.user_id = user_id
+        self.archived = archived
+        self.issue_id = issue_id
 
     def __repr__(self):
         return '<Id {0} - {1}>'.format(self.tweet_id, self.tweet)
@@ -222,21 +232,6 @@ class Discussion_Comment(db.Model):
         else:
             return 'few seconds ago'
 
-    @classmethod
-    def delta_time(cls, tweet_posted):
-        now = datetime.datetime.now()
-        td = now - tweet_posted
-        days = td.days
-        hours = td.seconds//3600
-        minutes = (td.seconds//60)%60
-        if days > 0:
-            return tweet_posted.strftime("%d %B, %Y")
-        elif hours > 0:
-            return str(hours) + 'h'
-        elif minutes > 0:
-            return str(minutes) + 'm'
-        else:
-            return 'few seconds ago'
 
 class Reply(db.Model):
     __tablename__ = 'replies'
