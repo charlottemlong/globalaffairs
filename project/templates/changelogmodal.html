@@ -58,6 +58,8 @@
     $(document).ready(function () {
         console.log('window is loaded');
         $('#changelogmodal').modal('show')
+        // const upvoteButton = document.getElementById(`upvote-button-${changeId}`);
+
     })
 
     function upvote(changeId) {
@@ -71,6 +73,7 @@
             const downvoteButton = document.getElementById(`downvote-button-${changeId}`);
 
             if (data["upvoted"] === true) {
+                console.log("upvoted")
                 // toggle upvoted if it ain't upvoted
                 if (!upvoteButton.classList.contains('on')) { 
                     upvoteButton.classList.toggle('on')
@@ -80,11 +83,18 @@
                 if (downvoteButton.classList.contains('on')) {
                     downvoteButton.classList.toggle('on')
                 }
+
+            } else { // upvoted is false
+                if (upvoteButton.classList.contains('on')) {
+                    upvoteButton.classList.toggle('on')
+                }
             }
 
-            console.log(data)
+
             let sum = data["upvotes"] - data["downvotes"]
             voteSum.innerHTML = sum;
+
+            console.log(data)
         })
         .catch((e) => alert("Could not upvote change."));
   }
@@ -98,21 +108,28 @@
         .then((data) => {
             const upvoteButton = document.getElementById(`upvote-button-${changeId}`);
             if (data["downvoted"] === true) {
+                console.log("downvoted")
                 // toggle downvoted if it ain't downvoted
                 if (!downvoteButton.classList.contains('on')) { 
                     downvoteButton.classList.toggle('on')
                 }
 
-                // remove downvoted on toggle
+                // remove upvote on toggle
                 if (upvoteButton.classList.contains('on')) {
                     upvoteButton.classList.toggle('on')
                 }
+
+
+            } else { // removing a downvote
+                if (downvoteButton.classList.contains('on')) { 
+                    downvoteButton.classList.toggle('on')
+                }
                 
             }
-
             let sum = data["upvotes"] - data["downvotes"]
             voteSum.innerHTML = sum;
-            console.log("Do something")
+
+
         })
         .catch((e) => alert("Could not downvote change."));
   }
