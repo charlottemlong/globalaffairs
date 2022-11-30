@@ -178,11 +178,16 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.0/jquery.cookie.min.js">
 </script>
 <script type="text/javascript">
+    let user_id = {{current_user_id}}
+    user_id = user_id.toString()
+    console.log(user_id)
  $(document).ready(function() {
-     if ($.cookie('pop') == null) {
-         $('#surveyModal').modal('show');
-         $.cookie('pop', '1');
-     }
+    console.log($.cookie(user_id))
+    if ($.cookie(user_id) == null) {
+        console.log(user_id + " is null")
+        $('#surveyModal').modal('show');
+        $.cookie(user_id, '1');
+    }
  });
 </script>
 <!-- <script type="text/javascript">
