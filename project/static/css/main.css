@@ -2,3 +2,17 @@
     padding-top: 19px;
     border-top: 1px solid #e5e5e5;
 }
+
+.vote {
+    display: inline-block;
+    cursor: pointer;
+    color: #687074
+  } 
+  
+  .vote.on {
+    color: #8911c6
+  }
+
+  .downvote {
+    transform: rotate(180deg);
+  }

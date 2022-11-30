@@ -2,18 +2,17 @@
 import datetime
 from functools import wraps
 from flask import (flash, redirect, render_template,
-                   request, session, url_for, Blueprint)
+                   request, session, url_for, Blueprint, jsonify)
 from sqlalchemy.exc import IntegrityError
 
 from .forms import RegisterForm, LoginForm, JuryForm, PostJuryForm
 from project import db, bcrypt
-from project.models import User, Follower, Issue, Group, Discussion_Comment, Reply
+from project.models import User, Follower, Issue, Group, Discussion_Comment, Reply, Change, Upvote, Downvote
 
 # config
 users_blueprint = Blueprint('users', __name__)
 
 # helper functions
-
 
 def login_required(test):
     @wraps(test)
@@ -24,7 +23,6 @@ def login_required(test):
             flash('You need to login first')
             return (redirect(url_for('users.login')))
     return wrap
-
 
 def admin_required(test):
     @wraps(test)
@@ -48,7 +46,6 @@ def logout():
     session.pop('role', None)
     flash('You have been logged out')
     return redirect(url_for('users.login'))
-
 
 @users_blueprint.route('/', methods=['GET', 'POST'])
 def login():
@@ -118,6 +115,63 @@ def followers():
 def about():
     error = None
     return render_template('about.html', error=error)
+    
+@users_blueprint.route("/upvote-change/<change_id>", methods=['POST'])
+@login_required
+def upvote(change_id):
+    change = Change.query.filter_by(id=change_id).first()
+    upvote = Upvote.query.filter_by(user_id=session['user_id'], id=change_id).first()
+    downvote = Downvote.query.filter_by(user_id=session['user_id'], id=change_id).first()
+
+    if not change:
+        return jsonify({'error': 'Change does not exist.'}, 400)
+    elif upvote: # we already have an upvote, so user is trying to remove upvote
+        db.session.delete(upvote)
+        db.session.commit()
+    else:
+        if downvote: # if previously he had a downvote we gotta remove it
+            db.session.delete(downvote)
+            db.session.commit()
+
+        upvote = Upvote(user_id=session['user_id'], change_id=change_id, date_created=datetime.datetime.now())
+        db.session.add(upvote)
+        db.session.commit()
+
+    return jsonify(
+        {"upvotes": len(change.upvotes), 
+         "upvoted": session['user_id'] in map(lambda x: x.user_id, change.upvotes),
+         "downvotes": len(change.downvotes)
+        }
+    )
+
+@users_blueprint.route("/downvote-change/<change_id>", methods=['POST'])
+@login_required
+def downvote(change_id):
+    change = Change.query.filter_by(id=change_id).first()
+    downvote = Downvote.query.filter_by(user_id=session['user_id'], id=change_id).first()
+    upvote = Upvote.query.filter_by(user_id=session['user_id'], id=change_id).first()
+
+    if not change:
+        return jsonify({'error': 'Change does not exist.'}, 400)
+    elif downvote: # we already have an downvote, so user is trying to remove upvote
+        db.session.delete(downvote)
+        db.session.commit()
+    else:
+        if upvote:
+            db.session.delete(upvote)
+            db.session.commit()
+
+        downvote = Downvote(user_id=session['user_id'], change_id=change_id, date_created=datetime.datetime.now())
+        db.session.add(downvote)
+        db.session.commit()
+
+    return jsonify(
+        {
+            "downvotes": len(change.downvotes),
+            "downvoted": session['user_id'] in map(lambda x: x.user_id, change.downvotes),
+            "upvotes": len(change.upvotes)
+        }
+    )
 
 
 def make_group(issue_id):
@@ -215,10 +269,5 @@ def post_discussion():
         form=form,
         error=error,
         all_comments=filtered_comments(session['user_id']),
-<<<<<<< HEAD
-        current_user_id=session['user_id']
-    )
-=======
         current_user_id = session['user_id'], issue=issue
     )
->>>>>>> ac028f132467035f62e21e1fe115f04eb83d0576

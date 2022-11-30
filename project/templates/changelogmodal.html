@@ -4,14 +4,49 @@
 <div class="modal fade" tabindex="-1" id="changelogmodal">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Modal title</h5>
-        </div>
-        <div class="modal-body">
-            <p>Modal body text goes here.</p>
-        </div>
-        <div class="modal-footer">
-        </div>
+            <div class="modal-header">
+                <h5 class="modal-title">New changes</h5>
+            </div>
+            <div class="modal-body">
+                <ol class="list-group list-group-numbered">
+                    {% for change in changes %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">{{ change.title }}</div>
+                            {{ change.description }}
+                        </div>
+                        {% if current_user_id in change.upvotes|map(attribute="user_id")|list %}
+                        <span class="vote on" id="upvote-button-{{change.id}}" onclick="upvote({{change.id}})">
+                        {% else %}
+                        <span class="vote" id="upvote-button-{{change.id}}" onclick="upvote({{change.id}})">
+                        {% endif %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-triangle-fill" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M7.022 1.566a1.13 1.13 0 0 1 1.96 0l6.857 11.667c.457.778-.092 1.767-.98 1.767H1.144c-.889 0-1.437-.99-.98-1.767L7.022 1.566z" />
+                            </svg>
+                        </span>
+
+                        <span id="votes-sum-{{change.id}}">{{ change.upvotes|length - change.downvotes|length }}</span>
+
+                        {% if current_user_id in change.downvotes|map(attribute="user_id")|list %}
+                        <span class="vote on downvote" id="downvote-button-{{change.id}}" onclick="downvote({{change.id}})">
+                        {% else %}
+                        <span class="vote downvote" id="downvote-button-{{change.id}}" onclick="downvote({{change.id}})">
+                        {% endif %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-triangle-fill" viewBox="0 0 16 16">
+
+                                <path fill-rule="evenodd"
+                                    d="M7.022 1.566a1.13 1.13 0 0 1 1.96 0l6.857 11.667c.457.778-.092 1.767-.98 1.767H1.144c-.889 0-1.437-.99-.98-1.767L7.022 1.566z" />
+                            </svg>
+                        </span>
+
+                    </li>
+                    {% endfor %}
+                </ol>
+            </div>
+
         </div>
     </div>
 </div>
@@ -20,10 +55,69 @@
 
 {% block script %}
 <script>
-    $(document).ready(function(){
+    $(document).ready(function () {
         console.log('window is loaded');
         $('#changelogmodal').modal('show')
     })
+
+    function upvote(changeId) {
+        const voteSum = document.getElementById(`votes-sum-${changeId}`);
+        const upvoteButton = document.getElementById(`upvote-button-${changeId}`);
+
+        fetch(`/upvote-change/${changeId}`, { method: "POST" })
+        .then((res) => res.json())
+        .then((data) => {
+
+            const downvoteButton = document.getElementById(`downvote-button-${changeId}`);
+
+            if (data["upvoted"] === true) {
+                // toggle upvoted if it ain't upvoted
+                if (!upvoteButton.classList.contains('on')) { 
+                    upvoteButton.classList.toggle('on')
+                }
+
+                // remove downvoted on toggle
+                if (downvoteButton.classList.contains('on')) {
+                    downvoteButton.classList.toggle('on')
+                }
+            }
+
+            console.log(data)
+            let sum = data["upvotes"] - data["downvotes"]
+            voteSum.innerHTML = sum;
+        })
+        .catch((e) => alert("Could not upvote change."));
+  }
+
+  function downvote(changeId) {
+        const voteSum = document.getElementById(`votes-sum-${changeId}`);
+        const downvoteButton = document.getElementById(`downvote-button-${changeId}`);
+
+        fetch(`/downvote-change/${changeId}`, { method: "POST" })
+        .then((res) => res.json())
+        .then((data) => {
+            const upvoteButton = document.getElementById(`upvote-button-${changeId}`);
+            if (data["downvoted"] === true) {
+                // toggle downvoted if it ain't downvoted
+                if (!downvoteButton.classList.contains('on')) { 
+                    downvoteButton.classList.toggle('on')
+                }
+
+                // remove downvoted on toggle
+                if (upvoteButton.classList.contains('on')) {
+                    upvoteButton.classList.toggle('on')
+                }
+                
+            }
+
+            let sum = data["upvotes"] - data["downvotes"]
+            voteSum.innerHTML = sum;
+            console.log("Do something")
+        })
+        .catch((e) => alert("Could not downvote change."));
+  }
+
+
 </script>
 
 {% endblock %}

@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .forms import PostTweetForm
 from project import db
-from project.models import User, Tweet, Follower, Comment, Like
+from project.models import User, Tweet, Follower, Comment, Like, Change
 
 # config
 tweets_blueprint = Blueprint('tweets', __name__)
@@ -23,6 +23,10 @@ def login_required(test):
             flash('You need to login first')
             return (redirect(url_for('users.login')))
     return wrap
+
+def play_with_changes(changes):
+    for change in changes:
+        print(change.title)
 
 def filtered_tweets(user_id):
     who_id = user_id
@@ -40,7 +44,13 @@ def filtered_tweets(user_id):
 @tweets_blueprint.route('/modal')
 @login_required
 def modal():
-    return render_template('changelogmodal.html')
+    changes = db.session.query(Change).all()
+    print(changes)
+
+
+    return render_template('changelogmodal.html',
+                            changes=changes,
+                            current_user_id = session['user_id'])
 
 @tweets_blueprint.route('/tweets/')
 @login_required

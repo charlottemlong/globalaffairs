@@ -73,6 +73,7 @@ class User(db.Model):
     changes = db.relationship('Change', back_populates='poster', passive_deletes=True)
     likes = db.relationship('Like', back_populates='liker', passive_deletes=True)
     upvotes = db.relationship('Upvote', back_populates='upvoter', passive_deletes=True)
+    downvotes = db.relationship('Downvote', back_populates='downvoter', passive_deletes=True)
     discussion_comments = db.relationship('Discussion_Comment', back_populates='poster')
     replies = db.relationship('Reply', back_populates='poster', passive_deletes=True)
 
@@ -115,19 +116,29 @@ class Upvote(db.Model):
     change_id = db.Column(db.Integer, db.ForeignKey('changes.id', ondelete="CASCADE"), nullable=False)
     change = db.relationship('Change', back_populates='upvotes', passive_deletes=True)
 
+class Downvote(db.Model):
+    __tablename__ = 'downvotes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date_created = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    downvoter = db.relationship('User', back_populates='downvotes', passive_deletes=True)
+    change_id = db.Column(db.Integer, db.ForeignKey('changes.id', ondelete="CASCADE"), nullable=False)
+    change = db.relationship('Change', back_populates='downvotes', passive_deletes=True)
 
 class Change(db.Model):
     __tablename__ = 'changes'
 
     id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime, nullable=False)
+    title = db.Column(db.String, unique=True, nullable=False)
+    description = db.Column(db.String, unique=True, nullable=False)
+    date_created = db.Column(db.DateTime, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     poster = db.relationship('User', back_populates='changes', passive_deletes=True)
-<<<<<<< HEAD
     upvotes = db.relationship('Upvote', back_populates='change')
-=======
+    downvotes = db.relationship('Downvote', back_populates='change')
+    
     # likes = db.relationship('Like', back_populates='tweet', passive_deletes=True)
->>>>>>> fc984bd2c854ce73772d086e5be32fff2f33424f
 
 class Follower(db.Model):
     __tablename__ = 'follower'
@@ -137,7 +148,6 @@ class Follower(db.Model):
 
     who_id = db.Column(db.Integer)
     whom_id = db.Column(db.Integer)
-
 
     def __init__(self, who_id, whom_id):
         self.who_id = who_id
