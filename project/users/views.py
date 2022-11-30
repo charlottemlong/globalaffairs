@@ -180,7 +180,8 @@ def filtered_comments(user_id):
 def jury():
     member = Group.query.filter_by(user_id=session['user_id']).first()
     issue_id = member.issue_id
-    if issue_id is not None:
+    vote = member.vote
+    if issue_id is not None and vote == "Undecided":
         issue = Issue.query.filter_by(id=issue_id).first()
         if issue.type == '0':
             vote_form = ScaleVoteForm(request.form)

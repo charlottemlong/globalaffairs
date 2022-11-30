@@ -12,11 +12,13 @@
 <br>
 {% if vote_form == None %}
 {% else %}
+You may only vote once. After submitting your vote, you will no longer be able to view the discussion or change your vote.
+<br>
 <div id="vote">
     <form action="/jury" method="post" style = "margin: auto;">
         {{ vote_form.csrf_token }}
         <p>
-            {{issue.question}}
+            <h4>{{issue.question}}</h4>
             {{ vote_form.vote }}
             {% if vote_form.vote.errors %}
             <span class="error">
