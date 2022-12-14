@@ -10,6 +10,58 @@ Beep is a democratic social media platform aimed at creating more transparency f
 ## How to Run Beep
 In order to see how Beep works yourself, simply clone the repository to your local machine. Then, navigate to the repository directory within your terminal and enter 'python3 run.py'.  Then, use one of the suggested addresses (for example, http://127.0.0.1:2345) to navigate to the site using your preferred search engine. From there, you will be able to create an account, post Beeps, follow accounts, and participate in the democratic features of the platform.
 
+## Feature Screenshots
+
+### Mandatory Surveys
+
+![Screenshot](Survey.png)
+
+### Jury Duty
+
+#### Administrator View: Create Jury Issue
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/Create%20Issue.png)
+
+#### User View: Blank Jury Discussion
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/Blank%20User%20Discussion.png)
+
+#### User View: Comment Posted
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/User%20Discussion.png)
+
+#### User View: Reply Posted
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/Discussion%20Reply.png)
+
+#### User View: Jury Voting
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/Jury%20Vote.png)
+
+#### User View: Vote Submitted 
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/Vote%20Submitted.png)
+
+#### Administrator View: View Vote Results
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/View%20Vote.png)
+
+#### Administrator Discussion View
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/Admin%20View.png)
+
+### Changelog Voting
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/Changelog%20Voting.png)
+
+### User Registration
+
+![Screenshot](Registration.png)
+
+### Home Page
+
+![Screenshot](https://github.com/charlottemlong/globalaffairs/blob/e876c418c6a0b10275e4bd3b90d8d9bb0bd488d6/Home%20Page.png)
+
 ## Tech Stack
 The following were used in the creation of Beep: Python, Flask, SQLAlchemy, HTML, CSS, Bootstrap, JavaScript, and Jinja.
 
